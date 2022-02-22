@@ -1,0 +1,112 @@
+syntax = "proto3";
+
+package user.service;
+option go_package = "github.com/lotproject/user-service/pkg";
+
+import "google/protobuf/empty.proto";
+import "user_entity.proto";
+
+service UserService {
+  rpc CreateUserByWallet (CreateUserByWalletRequest) returns (UserProfile) {}
+  rpc VerifyUserPassword (VerifyUserPasswordRequest) returns (UserProfile) {}
+  rpc CreateAuthToken (CreateAuthTokenRequest) returns (AuthToken) {}
+  rpc DeactivateAuthToken (DeactivateAuthTokenRequest) returns (google.protobuf.Empty) {}
+  rpc RefreshAccessToken (RefreshAccessTokenRequest) returns (AuthToken) {}
+  rpc SetUsername (SetUsernameRequest) returns (google.protobuf.Empty) {}
+  rpc SetLogin (SetLoginRequest) returns (google.protobuf.Empty) {}
+  rpc SetPassword (SetPasswordRequest) returns (google.protobuf.Empty) {}
+  rpc GetEmailConfirmationCode (UserProfile) returns (GetEmailConfirmationCodeResponse) {}
+  rpc ConfirmLogin (ConfirmLoginRequest) returns (google.protobuf.Empty) {}
+  rpc CreatePasswordRecoveryCode (UserProfile) returns (google.protobuf.Empty) {}
+  rpc VerifyPasswordRecoveryCode (VerifyPasswordRecoveryCodeRequest) returns (google.protobuf.Empty) {}
+  rpc GetUserById (GetUserByIdRequest) returns (UserProfile) {}
+  rpc GetUserByLogin (GetUserByLoginRequest) returns (UserProfile) {}
+  rpc GetUserByAccessToken (GetUserByAccessTokenRequest) returns (UserProfile) {}
+}
+
+message CreateUserByWalletRequest {
+  // @inject_tag: validate:"required,alphanum,oneof=phantom"
+  string provider = 1;
+  // @inject_tag: validate:"required,alphanum,wallet_token"
+  string token = 2;
+}
+
+message CreateAuthTokenRequest {
+  // @inject_tag: validate:"required"
+  UserProfile user = 1;
+  string ip = 2;
+  string user_agent = 3;
+}
+
+message DeactivateAuthTokenRequest {
+  // @inject_tag: validate:"required"
+  UserProfile user = 1;
+  // @inject_tag: validate:"required,len=165"
+  string access_token = 2;
+}
+
+message VerifyUserPasswordRequest {
+  // @inject_tag: validate:"required"
+  UserProfile user = 1;
+  // @inject_tag: validate:"required,password"
+  string password = 2;
+}
+
+message RefreshAccessTokenRequest {
+  // @inject_tag: validate:"required,alphanum,len=64"
+  string refresh_token = 1;
+}
+
+message SetUsernameRequest {
+  // @inject_tag: validate:"required"
+  UserProfile user = 1;
+  // @inject_tag: validate:"required,min=2,max=128"
+  string username = 2;
+}
+
+message SetLoginRequest {
+  // @inject_tag: validate:"required"
+  UserProfile user = 1;
+  // @inject_tag: validate:"required,email"
+  string login = 2;
+}
+
+message SetPasswordRequest {
+  // @inject_tag: validate:"required"
+  UserProfile user = 1;
+  // @inject_tag: validate:"required,password"
+  string password = 2;
+}
+
+message GetEmailConfirmationCodeResponse {
+  string code = 1;
+}
+
+message ConfirmLoginRequest {
+  // @inject_tag: validate:"required"
+  UserProfile user = 1;
+  // @inject_tag: validate:"required,numeric,len=6"
+  string code = 2;
+}
+
+message VerifyPasswordRecoveryCodeRequest {
+  // @inject_tag: validate:"required"
+  UserProfile user = 1;
+  // @inject_tag: validate:"required,numeric,len=6"
+  string code = 2;
+}
+
+message GetUserByIdRequest {
+  // @inject_tag: validate:"required,uuid"
+  string user_id = 1;
+}
+
+message GetUserByLoginRequest {
+  // @inject_tag: validate:"required,email"
+  string login = 1;
+}
+
+message GetUserByAccessTokenRequest {
+  // @inject_tag: validate:"required,len=165"
+  string access_token = 1;
+}
