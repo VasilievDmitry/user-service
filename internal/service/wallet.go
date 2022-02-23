@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	dbHelper "github.com/lotproject/go-helpers/db"
 	"github.com/lotproject/go-proto/go/user_service"
 )
@@ -12,6 +13,10 @@ func (s *Service) CreateUserByWallet(
 	res *user_service.ResponseWithUserProfile,
 ) error {
 	var user = &user_service.User{}
+
+	if !user_service.IsSupportedWalletType(req.Provider) {
+		return errors.New(user_service.ErrorUnsupportedWalletType)
+	}
 
 	authProvider, err := s.repositories.AuthProvider.GetByToken(ctx, req.Provider, req.Token)
 
