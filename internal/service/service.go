@@ -2,7 +2,6 @@ package service
 
 import (
 	"github.com/dgrijalva/jwt-go"
-	"github.com/go-redis/redis"
 	"github.com/lotproject/go-proto/go/user_service"
 	"github.com/lotproject/user-service/config"
 	"github.com/lotproject/user-service/internal/repository"
@@ -15,18 +14,15 @@ type Service struct {
 	cfg          *config.Config
 	log          *zap.Logger
 	repositories *repository.Repositories
-	redis        redis.Cmdable
 }
 
 func NewService(
 	repositories *repository.Repositories,
-	redis redis.Cmdable,
 	cfg *config.Config,
 	log *zap.Logger,
 ) *Service {
 	return &Service{
 		repositories: repositories,
-		redis:        redis,
 		cfg:          cfg,
 		log:          log,
 	}

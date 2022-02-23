@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/InVisionApp/go-health"
 	"github.com/InVisionApp/go-health/handlers"
-	"github.com/go-redis/redis"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 	"github.com/lotproject/go-helpers/db"
@@ -30,7 +29,6 @@ type Application struct {
 	cfg          *config.Config
 	log          *zap.Logger
 	database     *sqlx.DB
-	redis        *redis.Client
 	service      *service.Service
 	micro        micro.Service
 	healthServer *http.Server
@@ -51,8 +49,7 @@ func NewApplication() (app *Application) {
 	app.initMetrics()
 
 	app.service = service.NewService(
-		repository.InitRepositories(app.database, app.redis, app.log),
-		app.redis,
+		repository.InitRepositories(app.database, app.log),
 		app.cfg,
 		app.log,
 	)
@@ -213,13 +210,6 @@ func (app *Application) Stop() {
 		app.log.Error("DB connection close failed", zap.Error(err))
 	} else {
 		app.log.Info("DB connection close success")
-	}
-
-	err = app.redis.Close()
-	if err != nil {
-		app.log.Error("Redis connection close failed", zap.Error(err))
-	} else {
-		app.log.Info("Redis connection close success")
 	}
 
 	if app.healthServer != nil {
