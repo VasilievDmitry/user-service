@@ -1,7 +1,9 @@
 package service
 
 import (
+	"context"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/lotproject/go-proto/go/user_service"
 	"github.com/lotproject/user-service/config"
 	"github.com/lotproject/user-service/internal/repository"
@@ -26,6 +28,14 @@ func NewService(
 		cfg:          cfg,
 		log:          log,
 	}
+}
+
+func (s *Service) Ping(
+	_ context.Context,
+	_ *empty.Empty,
+	_ *empty.Empty,
+) error {
+	return nil
 }
 
 func (s *Service) convertUserToProfile(user *user_service.User) *user_service.UserProfile {

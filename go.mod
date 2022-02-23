@@ -14,7 +14,7 @@ require (
 	github.com/lotproject/go-helpers v0.0.0-20220222054749-0ae55f93fcf4
 	github.com/lotproject/go-helpers/db v0.0.0-20220222054749-0ae55f93fcf4
 	github.com/lotproject/go-helpers/log v0.0.0-20220222054749-0ae55f93fcf4
-	github.com/lotproject/go-proto/go/user_service v0.0.0-20220223070345-eabac10795f4
+	github.com/lotproject/go-proto/go/user_service v0.0.0-20220223073357-cb57dcd01cf8
 	github.com/micro/go-micro v1.18.0
 	github.com/natefinch/lumberjack v2.0.0+incompatible
 	github.com/prometheus/client_golang v1.7.1
