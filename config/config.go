@@ -2,20 +2,6 @@ package config
 
 import (
 	"github.com/kelseyhightower/envconfig"
-	"go.uber.org/zap/zapcore"
-)
-
-const (
-	//Debug has verbose message
-	Debug = "debug"
-	//Info is default log level
-	Info = "info"
-	//Warn is for logging messages about possible issues
-	Warn = "warn"
-	//Error is for logging errors
-	Error = "error"
-	//Fatal is for logging fatal messages. The system shutdown after logging the message.
-	Fatal = "fatal"
 )
 
 // Config define application config object
@@ -46,21 +32,4 @@ func NewConfig() (*Config, error) {
 	err := envconfig.Process("", cfg)
 
 	return cfg, err
-}
-
-func GetZapLevel(level string) zapcore.Level {
-	switch level {
-	case Info:
-		return zapcore.InfoLevel
-	case Warn:
-		return zapcore.WarnLevel
-	case Debug:
-		return zapcore.DebugLevel
-	case Error:
-		return zapcore.ErrorLevel
-	case Fatal:
-		return zapcore.FatalLevel
-	default:
-		return zapcore.InfoLevel
-	}
 }

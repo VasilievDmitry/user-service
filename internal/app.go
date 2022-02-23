@@ -9,6 +9,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 	"github.com/lotproject/go-helpers/db"
+	"github.com/lotproject/go-helpers/log"
 	"github.com/lotproject/go-proto/go/user_service"
 	"github.com/lotproject/user-service/config"
 	"github.com/lotproject/user-service/internal/repository"
@@ -123,7 +124,7 @@ func (app *Application) initLogger() {
 	core := zapcore.NewCore(
 		encoder,
 		zapcore.AddSync(writer),
-		config.GetZapLevel(app.cfg.LogLevel),
+		log.GetZapLevel(app.cfg.LogLevel),
 	)
 	logger := zap.New(core, zap.AddCaller())
 

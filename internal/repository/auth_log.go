@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	dbHelper "github.com/lotproject/go-helpers/db"
-	"github.com/lotproject/go-helpers/log"
 	"github.com/lotproject/go-proto/go/user_service"
 	"github.com/lotproject/user-service/internal/repository/models"
 	"go.uber.org/zap"
@@ -45,9 +44,9 @@ func (r *authLogRepository) Insert(ctx context.Context, auth *user_service.AuthL
 
 	if err != nil {
 		r.logger.Error(
-			log.ErrorDatabaseMapModelFailed,
+			dbHelper.ErrorDatabaseMapModelFailed,
 			zap.Error(err),
-			zap.Any(log.ErrorDatabaseFieldQuery, auth),
+			zap.Any(dbHelper.ErrorDatabaseFieldQuery, auth),
 		)
 		return err
 	}
@@ -77,9 +76,9 @@ func (r *authLogRepository) Insert(ctx context.Context, auth *user_service.AuthL
 
 	if err != nil {
 		r.logger.Error(
-			log.ErrorDatabaseCreateStmt,
+			dbHelper.ErrorDatabaseCreateStmt,
 			zap.Error(err),
-			zap.Any(log.ErrorDatabaseFieldQuery, model),
+			zap.Any(dbHelper.ErrorDatabaseFieldQuery, model),
 		)
 		return err
 	}
@@ -88,11 +87,11 @@ func (r *authLogRepository) Insert(ctx context.Context, auth *user_service.AuthL
 
 	if err != nil {
 		r.logger.Error(
-			log.ErrorDatabaseQueryFailed,
+			dbHelper.ErrorDatabaseQueryFailed,
 			zap.Error(err),
-			zap.String(log.ErrorDatabaseFieldOperation, log.ErrorDatabaseFieldOperationInsert),
-			zap.Any(log.ErrorDatabaseFieldQuery, dbHelper.CleanQueryForLog(query)),
-			zap.Any(log.ErrorDatabaseFieldDocument, model),
+			zap.String(dbHelper.ErrorDatabaseFieldOperation, dbHelper.ErrorDatabaseFieldOperationInsert),
+			zap.Any(dbHelper.ErrorDatabaseFieldQuery, dbHelper.CleanQueryForLog(query)),
+			zap.Any(dbHelper.ErrorDatabaseFieldDocument, model),
 		)
 		return err
 	}
@@ -105,9 +104,9 @@ func (r *authLogRepository) Update(ctx context.Context, auth *user_service.AuthL
 
 	if err != nil {
 		r.logger.Error(
-			log.ErrorDatabaseMapModelFailed,
+			dbHelper.ErrorDatabaseMapModelFailed,
 			zap.Error(err),
-			zap.Any(log.ErrorDatabaseFieldQuery, auth),
+			zap.Any(dbHelper.ErrorDatabaseFieldQuery, auth),
 		)
 		return err
 	}
@@ -129,11 +128,11 @@ func (r *authLogRepository) Update(ctx context.Context, auth *user_service.AuthL
 
 	if err != nil {
 		r.logger.Error(
-			log.ErrorDatabaseQueryFailed,
+			dbHelper.ErrorDatabaseQueryFailed,
 			zap.Error(err),
-			zap.String(log.ErrorDatabaseFieldOperation, log.ErrorDatabaseFieldOperationInsert),
-			zap.Any(log.ErrorDatabaseFieldQuery, dbHelper.CleanQueryForLog(query)),
-			zap.Any(log.ErrorDatabaseFieldDocument, model),
+			zap.String(dbHelper.ErrorDatabaseFieldOperation, dbHelper.ErrorDatabaseFieldOperationInsert),
+			zap.Any(dbHelper.ErrorDatabaseFieldQuery, dbHelper.CleanQueryForLog(query)),
+			zap.Any(dbHelper.ErrorDatabaseFieldDocument, model),
 		)
 		return err
 	}
@@ -152,9 +151,9 @@ func (r *authLogRepository) GetByAccessToken(ctx context.Context, token string) 
 	if err != nil {
 		if err != sql.ErrNoRows {
 			r.logger.Error(
-				log.ErrorDatabaseQueryFailed,
+				dbHelper.ErrorDatabaseQueryFailed,
 				zap.Error(err),
-				zap.Any(log.ErrorDatabaseFieldQuery, dbHelper.CleanQueryForLog(query)),
+				zap.Any(dbHelper.ErrorDatabaseFieldQuery, dbHelper.CleanQueryForLog(query)),
 			)
 		}
 		return nil, err
@@ -164,9 +163,9 @@ func (r *authLogRepository) GetByAccessToken(ctx context.Context, token string) 
 
 	if err != nil {
 		r.logger.Error(
-			log.ErrorDatabaseMapModelFailed,
+			dbHelper.ErrorDatabaseMapModelFailed,
 			zap.Error(err),
-			zap.Any(log.ErrorDatabaseFieldQuery, model),
+			zap.Any(dbHelper.ErrorDatabaseFieldQuery, model),
 		)
 		return nil, err
 	}
@@ -185,9 +184,9 @@ func (r *authLogRepository) GetByRefreshToken(ctx context.Context, token string)
 	if err != nil {
 		if err != sql.ErrNoRows {
 			r.logger.Error(
-				log.ErrorDatabaseQueryFailed,
+				dbHelper.ErrorDatabaseQueryFailed,
 				zap.Error(err),
-				zap.Any(log.ErrorDatabaseFieldQuery, dbHelper.CleanQueryForLog(query)),
+				zap.Any(dbHelper.ErrorDatabaseFieldQuery, dbHelper.CleanQueryForLog(query)),
 			)
 		}
 		return nil, err
@@ -197,9 +196,9 @@ func (r *authLogRepository) GetByRefreshToken(ctx context.Context, token string)
 
 	if err != nil {
 		r.logger.Error(
-			log.ErrorDatabaseMapModelFailed,
+			dbHelper.ErrorDatabaseMapModelFailed,
 			zap.Error(err),
-			zap.Any(log.ErrorDatabaseFieldQuery, model),
+			zap.Any(dbHelper.ErrorDatabaseFieldQuery, model),
 		)
 		return nil, err
 	}

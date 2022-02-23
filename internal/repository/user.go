@@ -7,7 +7,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	dbHelper "github.com/lotproject/go-helpers/db"
-	"github.com/lotproject/go-helpers/log"
 	"github.com/lotproject/go-proto/go/user_service"
 	"github.com/lotproject/user-service/internal/repository/models"
 	"go.uber.org/zap"
@@ -50,9 +49,9 @@ func (r *userRepository) Insert(ctx context.Context, user *user_service.User) er
 
 	if err != nil {
 		r.logger.Error(
-			log.ErrorDatabaseMapModelFailed,
+			dbHelper.ErrorDatabaseMapModelFailed,
 			zap.Error(err),
-			zap.Any(log.ErrorDatabaseFieldQuery, user),
+			zap.Any(dbHelper.ErrorDatabaseFieldQuery, user),
 		)
 		return err
 	}
@@ -65,10 +64,10 @@ func (r *userRepository) Insert(ctx context.Context, user *user_service.User) er
 
 	if err != nil {
 		r.logger.Error(
-			log.ErrorDatabaseMapModelFailed,
+			dbHelper.ErrorDatabaseMapModelFailed,
 			zap.Error(err),
-			zap.Any(log.ErrorDatabaseFieldQuery, dbHelper.CleanQueryForLog(query)),
-			zap.Any(log.ErrorDatabaseFieldDocument, model),
+			zap.Any(dbHelper.ErrorDatabaseFieldQuery, dbHelper.CleanQueryForLog(query)),
+			zap.Any(dbHelper.ErrorDatabaseFieldDocument, model),
 		)
 		return err
 	}
@@ -81,9 +80,9 @@ func (r *userRepository) Update(ctx context.Context, user *user_service.User) er
 
 	if err != nil {
 		r.logger.Error(
-			log.ErrorDatabaseMapModelFailed,
+			dbHelper.ErrorDatabaseMapModelFailed,
 			zap.Error(err),
-			zap.Any(log.ErrorDatabaseFieldQuery, user),
+			zap.Any(dbHelper.ErrorDatabaseFieldQuery, user),
 		)
 		return err
 	}
@@ -103,10 +102,10 @@ func (r *userRepository) Update(ctx context.Context, user *user_service.User) er
 
 	if err != nil {
 		r.logger.Error(
-			log.ErrorDatabaseMapModelFailed,
+			dbHelper.ErrorDatabaseMapModelFailed,
 			zap.Error(err),
-			zap.Any(log.ErrorDatabaseFieldQuery, dbHelper.CleanQueryForLog(query)),
-			zap.Any(log.ErrorDatabaseFieldDocument, model),
+			zap.Any(dbHelper.ErrorDatabaseFieldQuery, dbHelper.CleanQueryForLog(query)),
+			zap.Any(dbHelper.ErrorDatabaseFieldDocument, model),
 		)
 		return err
 	}
@@ -125,9 +124,9 @@ func (r *userRepository) GetById(ctx context.Context, id string) (*user_service.
 	if err != nil {
 		if err != sql.ErrNoRows {
 			r.logger.Error(
-				log.ErrorDatabaseQueryFailed,
+				dbHelper.ErrorDatabaseQueryFailed,
 				zap.Error(err),
-				zap.Any(log.ErrorDatabaseFieldQuery, dbHelper.CleanQueryForLog(query)),
+				zap.Any(dbHelper.ErrorDatabaseFieldQuery, dbHelper.CleanQueryForLog(query)),
 				zap.String("id", id),
 			)
 		}
@@ -138,9 +137,9 @@ func (r *userRepository) GetById(ctx context.Context, id string) (*user_service.
 
 	if err != nil {
 		r.logger.Error(
-			log.ErrorDatabaseMapModelFailed,
+			dbHelper.ErrorDatabaseMapModelFailed,
 			zap.Error(err),
-			zap.Any(log.ErrorDatabaseFieldQuery, model),
+			zap.Any(dbHelper.ErrorDatabaseFieldQuery, model),
 		)
 		return nil, err
 	}
@@ -159,9 +158,9 @@ func (r *userRepository) GetByLogin(ctx context.Context, _login string) (*user_s
 	if err != nil {
 		if err != sql.ErrNoRows {
 			r.logger.Error(
-				log.ErrorDatabaseQueryFailed,
+				dbHelper.ErrorDatabaseQueryFailed,
 				zap.Error(err),
-				zap.Any(log.ErrorDatabaseFieldQuery, dbHelper.CleanQueryForLog(query)),
+				zap.Any(dbHelper.ErrorDatabaseFieldQuery, dbHelper.CleanQueryForLog(query)),
 				zap.String("login", _login),
 			)
 		}
@@ -172,9 +171,9 @@ func (r *userRepository) GetByLogin(ctx context.Context, _login string) (*user_s
 
 	if err != nil {
 		r.logger.Error(
-			log.ErrorDatabaseMapModelFailed,
+			dbHelper.ErrorDatabaseMapModelFailed,
 			zap.Error(err),
-			zap.Any(log.ErrorDatabaseFieldQuery, model),
+			zap.Any(dbHelper.ErrorDatabaseFieldQuery, model),
 		)
 		return nil, err
 	}
