@@ -2,9 +2,9 @@ package service
 
 import (
 	"context"
-	"errors"
 	dbHelper "github.com/lotproject/go-helpers/db"
 	"github.com/lotproject/go-proto/go/user_service"
+	"github.com/micro/go-micro/errors"
 )
 
 func (s *Service) CreateUserByWallet(
@@ -15,14 +15,14 @@ func (s *Service) CreateUserByWallet(
 	var user = &user_service.User{}
 
 	if !user_service.IsSupportedWalletType(req.Provider) {
-		return errors.New(user_service.ErrorUnsupportedWalletType)
+		return errors.BadRequest(user_service.ServiceName, user_service.ErrorWalletUnsupportedType)
 	}
 
 	authProvider, err := s.repositories.AuthProvider.GetByToken(ctx, req.Provider, req.Token)
 
 	if err != nil {
 		if !dbHelper.IsNotFound(err) {
-			return err
+			return errors.InternalServerError(user_service.ServiceName, user_service.ErrorInternalError)
 		}
 
 		newUser := &user_service.User{
@@ -30,7 +30,7 @@ func (s *Service) CreateUserByWallet(
 		}
 
 		if err = s.repositories.User.Insert(ctx, newUser); err != nil {
-			return err
+			return errors.InternalServerError(user_service.ServiceName, user_service.ErrorInternalError)
 		}
 
 		authProvider = &user_service.AuthProvider{
@@ -40,11 +40,11 @@ func (s *Service) CreateUserByWallet(
 		}
 
 		if err = s.repositories.AuthProvider.Insert(ctx, authProvider); err != nil {
-			return err
+			return errors.InternalServerError(user_service.ServiceName, user_service.ErrorInternalError)
 		}
 
 		if user, err = s.repositories.User.GetById(ctx, newUser.Id); err != nil {
-			return err
+			return s.buildGetUserError(err)
 		}
 	} else {
 		user = authProvider.User

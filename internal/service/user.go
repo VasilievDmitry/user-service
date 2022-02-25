@@ -2,10 +2,10 @@ package service
 
 import (
 	"context"
-	"errors"
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/lotproject/go-helpers/random"
 	"github.com/lotproject/go-proto/go/user_service"
+	"github.com/micro/go-micro/errors"
 	"strconv"
 )
 
@@ -17,7 +17,7 @@ func (s *Service) GetUserById(
 	user, err := s.repositories.User.GetById(ctx, req.UserId)
 
 	if err != nil {
-		return err
+		return s.buildGetUserError(err)
 	}
 
 	res.UserProfile = s.convertUserToProfile(user)
@@ -33,7 +33,7 @@ func (s *Service) GetUserByLogin(
 	user, err := s.repositories.User.GetByLogin(ctx, req.Login)
 
 	if err != nil {
-		return err
+		return s.buildGetUserError(err)
 	}
 
 	res.UserProfile = s.convertUserToProfile(user)
@@ -49,13 +49,13 @@ func (s *Service) GetUserByAccessToken(
 	authLog, err := s.repositories.AuthLog.GetByAccessToken(ctx, req.AccessToken)
 
 	if err != nil {
-		return err
+		return s.buildGetAuthLogError(err)
 	}
 
 	user, err := s.repositories.User.GetById(ctx, authLog.User.Id)
 
 	if err != nil {
-		return err
+		return s.buildGetUserError(err)
 	}
 
 	res.UserProfile = s.convertUserToProfile(user)
@@ -68,16 +68,16 @@ func (s *Service) SetUsername(
 	req *user_service.SetUsernameRequest,
 	_ *empty.Empty,
 ) error {
-	user, err := s.repositories.User.GetById(ctx, req.User.Id)
+	user, err := s.repositories.User.GetById(ctx, req.UserId)
 
 	if err != nil {
-		return err
+		return s.buildGetUserError(err)
 	}
 
 	user.Username = req.Username
 
 	if err = s.repositories.User.Update(ctx, user); err != nil {
-		return err
+		return errors.InternalServerError(user_service.ServiceName, user_service.ErrorInternalError)
 	}
 
 	return nil
@@ -88,31 +88,21 @@ func (s *Service) SetLogin(
 	req *user_service.SetLoginRequest,
 	_ *empty.Empty,
 ) error {
-	user, err := s.repositories.User.GetById(ctx, req.User.Id)
+	user, err := s.repositories.User.GetById(ctx, req.UserId)
 
 	if err != nil {
-		return err
+		return s.buildGetUserError(err)
 	}
 
 	if user.EmailConfirmed {
-		return errors.New(user_service.ErrorLoginAlreadyConfirmed)
-	}
-
-	check, err := s.repositories.User.GetByLogin(ctx, req.Login)
-
-	if err != nil {
-		return err
-	}
-
-	if check != nil {
-		return errors.New(user_service.ErrorLoginAlreadyExists)
+		return errors.BadRequest(user_service.ServiceName, user_service.ErrorLoginAlreadyConfirmed)
 	}
 
 	user.Login = req.Login
 	user.EmailCode = strconv.Itoa(random.RandomInt(100000, 999999))
 
 	if err = s.repositories.User.Update(ctx, user); err != nil {
-		return err
+		return errors.InternalServerError(user_service.ServiceName, user_service.ErrorInternalError)
 	}
 
 	// TODO: Отправить письмо с подтверждением (проверить лимит)
@@ -125,25 +115,25 @@ func (s *Service) ConfirmLogin(
 	req *user_service.ConfirmLoginRequest,
 	_ *empty.Empty,
 ) error {
-	user, err := s.repositories.User.GetById(ctx, req.User.Id)
+	user, err := s.repositories.User.GetById(ctx, req.UserId)
 
 	if err != nil {
-		return err
+		return s.buildGetUserError(err)
 	}
 
 	if user.EmailConfirmed {
-		return errors.New(user_service.ErrorLoginAlreadyConfirmed)
+		return errors.BadRequest(user_service.ServiceName, user_service.ErrorLoginAlreadyConfirmed)
 	}
 
 	if user.EmailCode != req.Code {
-		return errors.New(user_service.ErrorInvalidRecoveryCode)
+		return errors.BadRequest(user_service.ServiceName, user_service.ErrorRecoveryCodeInvalid)
 	}
 
 	user.EmailCode = ""
 	user.EmailConfirmed = true
 
 	if err = s.repositories.User.Update(ctx, user); err != nil {
-		return err
+		return errors.InternalServerError(user_service.ServiceName, user_service.ErrorInternalError)
 	}
 
 	return nil
