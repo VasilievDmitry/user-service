@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/lotproject/go-helpers/hash"
 	"github.com/lotproject/go-helpers/random"
@@ -62,7 +61,7 @@ func (s *Service) SetPassword(
 func (s *Service) CreatePasswordRecoveryCode(
 	ctx context.Context,
 	req *user_service.UserProfile,
-	_ *empty.Empty,
+	res *user_service.CreatePasswordRecoveryCodeResponse,
 ) error {
 	user, err := s.repositories.User.GetById(ctx, req.Id)
 
@@ -81,8 +80,7 @@ func (s *Service) CreatePasswordRecoveryCode(
 		return errors.InternalServerError(user_service.ServiceName, user_service.ErrorInternalError)
 	}
 
-	// TODO: Отправить письмо с кодом (проверить лимит)
-	fmt.Println(user.RecoveryCode)
+	res.Code = user.RecoveryCode
 
 	return nil
 }

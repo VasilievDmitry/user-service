@@ -110,8 +110,6 @@ func (s *Service) SetLogin(
 		return errors.InternalServerError(user_service.ServiceName, user_service.ErrorInternalError)
 	}
 
-	// TODO: Отправить письмо с подтверждением (проверить лимит)
-
 	return nil
 }
 
