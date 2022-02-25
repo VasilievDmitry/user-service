@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"github.com/golang/protobuf/ptypes/empty"
+	dbHelper "github.com/lotproject/go-helpers/db"
 	"github.com/lotproject/go-helpers/random"
 	"github.com/lotproject/go-proto/go/user_service"
 	"github.com/micro/go-micro/errors"
@@ -102,6 +103,10 @@ func (s *Service) SetLogin(
 	user.EmailCode = strconv.Itoa(random.RandomInt(100000, 999999))
 
 	if err = s.repositories.User.Update(ctx, user); err != nil {
+		if dbHelper.IsDuplicateEntry(err) {
+			return errors.BadRequest(user_service.ServiceName, user_service.ErrorLoginAlreadyExists)
+		}
+
 		return errors.InternalServerError(user_service.ServiceName, user_service.ErrorInternalError)
 	}
 
