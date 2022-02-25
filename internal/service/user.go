@@ -104,7 +104,7 @@ func (s *Service) SetLogin(
 
 	if err = s.repositories.User.Update(ctx, user); err != nil {
 		if dbHelper.IsDuplicateEntry(err) {
-			return errors.BadRequest(user_service.ServiceName, user_service.ErrorLoginAlreadyExists)
+			return errors.Conflict(user_service.ServiceName, user_service.ErrorLoginAlreadyExists)
 		}
 
 		return errors.InternalServerError(user_service.ServiceName, user_service.ErrorInternalError)
