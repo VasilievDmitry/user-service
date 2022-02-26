@@ -49,5 +49,3 @@ jobs:
           TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           GOPRIVATE: "github.com/lotproject"
         run: git config --global --add url."https://pr0head:${TOKEN}@github.com/".insteadOf "https://github.com/" && go test ./internal/... -coverprofile=coverage.out -covermode=atomic
-      - name: publish codecov
-        run: bash <(curl -s https://codecov.io/bash)
