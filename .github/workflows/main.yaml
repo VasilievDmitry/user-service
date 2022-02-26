@@ -1,0 +1,53 @@
+name: Build
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  tests:
+    name: tests
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - uses: actions/cache@v2
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Set up MySQL
+        env:
+          DB_DATABASE: test_db
+          DB_USER: root
+          DB_PASSWORD: root
+        run: |
+          sudo /etc/init.d/mysql start
+          mysql -e 'CREATE DATABASE ${{ env.DB_DATABASE }};' -u${{ env.DB_USER }} -p${{ env.DB_PASSWORD }}
+
+      - uses: shogo82148/actions-setup-redis@v1
+        with:
+          redis-version: '6.x'
+
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '1.17'
+
+      - name: tests
+        env:
+          GO111MODULE: on
+          MYSQL_DSN: mysql://root:root@localhost:3306/test_db?parseTime=true
+          ACCESS_TOKEN_SECRET: secret
+          TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          GOPRIVATE: "github.com/lotproject"
+        run: git config --global --add url."https://pr0head:${TOKEN}@github.com".insteadOf "https://github.com/" && go test ./internal/... -coverprofile=coverage.out -covermode=atomic
+      - name: publish codecov
+        run: bash <(curl -s https://codecov.io/bash)
