@@ -87,7 +87,7 @@ func (s *Service) SetUsername(
 func (s *Service) SetLogin(
 	ctx context.Context,
 	req *user_service.SetLoginRequest,
-	_ *empty.Empty,
+	res *user_service.SetLoginResponse,
 ) error {
 	user, err := s.repositories.User.GetById(ctx, req.UserId)
 
@@ -109,6 +109,8 @@ func (s *Service) SetLogin(
 
 		return errors.InternalServerError(user_service.ServiceName, user_service.ErrorInternalError)
 	}
+
+	res.Code = user.EmailCode
 
 	return nil
 }
