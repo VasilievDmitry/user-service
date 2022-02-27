@@ -16,10 +16,10 @@ type authProviderRepository dbRepository
 // AuthProviderRepositoryInterface is abstraction layer for working with providers of users and its representation in database.
 type AuthProviderRepositoryInterface interface {
 	// Insert adds the user provider to the collection.
-	Insert(ctx context.Context, auth *user_service.AuthProvider) error
+	Insert(ctx context.Context, provider *user_service.AuthProvider) error
 
 	// Update updates the user provider to the collection.
-	Update(ctx context.Context, auth *user_service.AuthProvider) error
+	Update(ctx context.Context, provider *user_service.AuthProvider) error
 
 	// GetByToken returns the user provider by token.
 	GetByToken(ctx context.Context, provider, token string) (*user_service.AuthProvider, error)
@@ -36,14 +36,14 @@ func NewAuthProviderRepository(db *sqlx.DB, logger *zap.Logger) AuthProviderRepo
 	return s
 }
 
-func (r *authProviderRepository) Insert(ctx context.Context, auth *user_service.AuthProvider) error {
-	model, err := r.mapper.MapProtoToModel(auth)
+func (r *authProviderRepository) Insert(ctx context.Context, provider *user_service.AuthProvider) error {
+	model, err := r.mapper.MapProtoToModel(provider)
 
 	if err != nil {
 		r.logger.Error(
 			dbHelper.ErrorDatabaseMapModelFailed,
 			zap.Error(err),
-			zap.Any(dbHelper.ErrorDatabaseFieldQuery, auth),
+			zap.Any(dbHelper.ErrorDatabaseFieldQuery, provider),
 		)
 		return err
 	}
@@ -72,7 +72,7 @@ func (r *authProviderRepository) Insert(ctx context.Context, auth *user_service.
 		return err
 	}
 
-	_, err = r.db.NamedExecContext(ctx, query, model)
+	res, err := r.db.NamedExecContext(ctx, query, model)
 
 	if err != nil {
 		r.logger.Error(
@@ -85,17 +85,31 @@ func (r *authProviderRepository) Insert(ctx context.Context, auth *user_service.
 		return err
 	}
 
+	id, err := res.LastInsertId()
+
+	if err != nil {
+		r.logger.Error(
+			dbHelper.ErrorDatabaseGetLatestId,
+			zap.Error(err),
+			zap.Any(dbHelper.ErrorDatabaseFieldQuery, dbHelper.CleanQueryForLog(query)),
+			zap.Any(dbHelper.ErrorDatabaseFieldDocument, model),
+		)
+		return err
+	}
+
+	provider.Id = id
+
 	return nil
 }
 
-func (r *authProviderRepository) Update(ctx context.Context, auth *user_service.AuthProvider) error {
-	model, err := r.mapper.MapProtoToModel(auth)
+func (r *authProviderRepository) Update(ctx context.Context, provider *user_service.AuthProvider) error {
+	model, err := r.mapper.MapProtoToModel(provider)
 
 	if err != nil {
 		r.logger.Error(
 			dbHelper.ErrorDatabaseMapModelFailed,
 			zap.Error(err),
-			zap.Any(dbHelper.ErrorDatabaseFieldQuery, auth),
+			zap.Any(dbHelper.ErrorDatabaseFieldQuery, provider),
 		)
 		return err
 	}

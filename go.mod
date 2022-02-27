@@ -14,10 +14,11 @@ require (
 	github.com/lotproject/go-helpers/hash v0.0.0-20220223094055-21a0af1e4859
 	github.com/lotproject/go-helpers/log v0.0.0-20220223094055-21a0af1e4859
 	github.com/lotproject/go-helpers/random v0.0.0-20220223094055-21a0af1e4859
-	github.com/lotproject/go-proto/go/user_service v0.0.0-20220226160207-d6b910f7745f
+	github.com/lotproject/go-proto/go/user_service v0.0.0-20220227142258-67a3d24c1949
 	github.com/micro/go-micro v1.18.0
 	github.com/natefinch/lumberjack v2.0.0+incompatible
 	github.com/prometheus/client_golang v1.7.1
+	github.com/stretchr/testify v1.7.0
 	go.uber.org/zap v1.21.0
 	golang.org/x/crypto v0.0.0-20200221231518-2aa609cf4a9d
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect

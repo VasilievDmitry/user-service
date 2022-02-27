@@ -16,10 +16,10 @@ type authLogRepository dbRepository
 // AuthLogRepositoryInterface is abstraction layer for working with authorizations of users and its representation in database.
 type AuthLogRepositoryInterface interface {
 	// Insert adds the user auth to the collection.
-	Insert(ctx context.Context, auth *user_service.AuthLog) error
+	Insert(ctx context.Context, log *user_service.AuthLog) error
 
 	// Update updates the user auth to the collection.
-	Update(ctx context.Context, auth *user_service.AuthLog) error
+	Update(ctx context.Context, log *user_service.AuthLog) error
 
 	// GetByAccessToken returns the user auth by access token.
 	GetByAccessToken(ctx context.Context, token string) (*user_service.AuthLog, error)
@@ -39,14 +39,14 @@ func NewAuthLogRepository(db *sqlx.DB, logger *zap.Logger) AuthLogRepositoryInte
 	return s
 }
 
-func (r *authLogRepository) Insert(ctx context.Context, auth *user_service.AuthLog) error {
-	model, err := r.mapper.MapProtoToModel(auth)
+func (r *authLogRepository) Insert(ctx context.Context, log *user_service.AuthLog) error {
+	model, err := r.mapper.MapProtoToModel(log)
 
 	if err != nil {
 		r.logger.Error(
 			dbHelper.ErrorDatabaseMapModelFailed,
 			zap.Error(err),
-			zap.Any(dbHelper.ErrorDatabaseFieldQuery, auth),
+			zap.Any(dbHelper.ErrorDatabaseFieldQuery, log),
 		)
 		return err
 	}
@@ -83,7 +83,7 @@ func (r *authLogRepository) Insert(ctx context.Context, auth *user_service.AuthL
 		return err
 	}
 
-	_, err = r.db.NamedExecContext(ctx, query, model)
+	res, err := r.db.NamedExecContext(ctx, query, model)
 
 	if err != nil {
 		r.logger.Error(
@@ -96,17 +96,31 @@ func (r *authLogRepository) Insert(ctx context.Context, auth *user_service.AuthL
 		return err
 	}
 
+	id, err := res.LastInsertId()
+
+	if err != nil {
+		r.logger.Error(
+			dbHelper.ErrorDatabaseGetLatestId,
+			zap.Error(err),
+			zap.Any(dbHelper.ErrorDatabaseFieldQuery, dbHelper.CleanQueryForLog(query)),
+			zap.Any(dbHelper.ErrorDatabaseFieldDocument, model),
+		)
+		return err
+	}
+
+	log.Id = id
+
 	return nil
 }
 
-func (r *authLogRepository) Update(ctx context.Context, auth *user_service.AuthLog) error {
-	model, err := r.mapper.MapProtoToModel(auth)
+func (r *authLogRepository) Update(ctx context.Context, log *user_service.AuthLog) error {
+	model, err := r.mapper.MapProtoToModel(log)
 
 	if err != nil {
 		r.logger.Error(
 			dbHelper.ErrorDatabaseMapModelFailed,
 			zap.Error(err),
-			zap.Any(dbHelper.ErrorDatabaseFieldQuery, auth),
+			zap.Any(dbHelper.ErrorDatabaseFieldQuery, log),
 		)
 		return err
 	}
