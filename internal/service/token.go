@@ -124,7 +124,7 @@ func (s *Service) DeactivateAuthToken(
 	}
 
 	if req.UserId != authLog.User.Id {
-		return errors.BadRequest(user_service.ServiceName, user_service.ErrorTokenOwnerInvalid)
+		return errors.Forbidden(user_service.ServiceName, user_service.ErrorTokenOwnerInvalid)
 	}
 
 	authLog.IsActive = false
