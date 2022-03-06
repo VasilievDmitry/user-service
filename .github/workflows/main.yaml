@@ -9,21 +9,21 @@ jobs:
     name: tests
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+    env:
+      DB_DATABASE: lot_user_test
+      DB_USER: root
+      DB_PASSWORD: root
     steps:
+      - name: Set up MySQL
+        run: |
+          sudo /etc/init.d/mysql start
+          mysql -e 'CREATE DATABASE ${{ env.DB_DATABASE }};' -u${{ env.DB_USER }} -p${{ env.DB_PASSWORD }}
+
       - name: Checkout code
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
           persist-credentials: true
-
-      - name: Set up MySQL
-        env:
-          DB_DATABASE: test_db
-          DB_USER: root
-          DB_PASSWORD: root
-        run: |
-          sudo /etc/init.d/mysql start
-          mysql -e 'CREATE DATABASE ${{ env.DB_DATABASE }};' -u${{ env.DB_USER }} -p${{ env.DB_PASSWORD }}
 
       - name: Install Go
         uses: actions/setup-go@v2
@@ -33,7 +33,7 @@ jobs:
       - name: tests
         env:
           GO111MODULE: on
-          MYSQL_DSN: mysql://root:root@localhost:3306/test_db?parseTime=true
+          MYSQL_DSN: root:root@tcp(localhost:3306)/lot_user_test?parseTime=true
           ACCESS_TOKEN_SECRET: secret
           TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           GOPRIVATE: "github.com/lotproject"
