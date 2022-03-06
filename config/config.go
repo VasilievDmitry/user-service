@@ -20,7 +20,7 @@ type Config struct {
 	MigrationsLockTimeout int64  `envconfig:"MIGRATIONS_LOCK_TIMEOUT" default:"120"`
 
 	BcryptCost               int    `envconfig:"BCRYPT_COST" required:"false" default:"10"`
-	RefreshTokenLifetime     int    `envconfig:"REFRESH_TOKEN_LIFETIME" required:"false" default:"365"`
+	RefreshTokenLifetime     int    `envconfig:"REFRESH_TOKEN_LIFETIME" required:"false" default:"30"`
 	AccessTokenLifetime      int    `envconfig:"ACCESS_TOKEN_LIFETIME" required:"false" default:"3"`
 	AccessTokenSecret        string `envconfig:"ACCESS_TOKEN_SECRET" required:"true"`
 	AccessTokenSigningMethod string `envconfig:"ACCESS_TOKEN_SIGNING_METHOD" required:"false" default:"HS256"`
