@@ -44,11 +44,10 @@ jobs:
         with:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
+          format: markdown
           message: |
-            ${{ github.actor }} created commit:
-            Commit message: ${{ github.event.commits[0].message }}
-            Test status: ${{ job.status }}
+            Build `${{ github.repository }}` ${{ job.status }}
 
-            Repository: ${{ github.repository }}
+            ${{ github.event.commits[0].message }}
 
             See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}
