@@ -38,3 +38,17 @@ jobs:
           TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           GOPRIVATE: "github.com/lotproject"
         run: git config --global --add url."https://pr0head:${TOKEN}@github.com/".insteadOf "https://github.com/" && go test ./internal/... -coverprofile=coverage.out -covermode=atomic
+
+      - name: send telegram message on push
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: |
+            ${{ github.actor }} created commit:
+            Commit message: ${{ github.event.commits[0].message }}
+            Test status: ${{ job.status }}
+
+            Repository: ${{ github.repository }}
+
+            See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}
