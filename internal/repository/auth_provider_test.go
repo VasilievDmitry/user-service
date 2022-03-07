@@ -77,6 +77,10 @@ func (suite *AuthProviderTestSuite) TearDownTest() {
 	}
 }
 
+func (suite *AuthLogTestSuite) Test_NewAuthProviderRepository() {
+	assert.Implements(suite.T(), (*AuthProviderRepositoryInterface)(nil), NewAuthProviderRepository(nil, nil))
+}
+
 func (suite *AuthProviderTestSuite) Test_CRUD() {
 	var (
 		ctx      = context.Background()

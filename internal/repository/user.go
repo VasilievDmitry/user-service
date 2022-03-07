@@ -59,7 +59,6 @@ func (r *userRepository) Insert(ctx context.Context, user *user_service.User) er
 	query := `
 		INSERT INTO user (id, login, password, username, email_code, email_confirmed, recovery_code, is_active, created_at, updated_at)
 		VALUES (:id, :login, :password, :username, :email_code, :email_confirmed, :recovery_code, :is_active, :created_at, :updated_at)`
-
 	_, err = r.db.NamedExecContext(ctx, query, model)
 
 	if err != nil {

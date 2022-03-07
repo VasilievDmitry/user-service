@@ -78,6 +78,10 @@ func (suite *AuthLogTestSuite) TearDownTest() {
 	}
 }
 
+func (suite *AuthLogTestSuite) Test_NewAuthLogRepository() {
+	assert.Implements(suite.T(), (*AuthLogRepositoryInterface)(nil), NewAuthLogRepository(nil, nil))
+}
+
 func (suite *AuthLogTestSuite) Test_CRUD() {
 	var (
 		ctx = context.Background()

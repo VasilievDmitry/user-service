@@ -73,16 +73,6 @@ func (r *authLogRepository) Insert(ctx context.Context, log *user_service.AuthLo
 			:updated_at, 
 			:expire_at
 		)`
-
-	if err != nil {
-		r.logger.Error(
-			dbHelper.ErrorDatabaseCreateStmt,
-			zap.Error(err),
-			zap.Any(dbHelper.ErrorDatabaseFieldQuery, model),
-		)
-		return err
-	}
-
 	res, err := r.db.NamedExecContext(ctx, query, model)
 
 	if err != nil {
