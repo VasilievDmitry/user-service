@@ -3,13 +3,13 @@ package service
 import (
 	"context"
 	"fmt"
-	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/lotproject/go-helpers/hash"
 	"github.com/lotproject/go-helpers/random"
 	"github.com/lotproject/go-proto/go/user_service"
 	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"time"
 )
 
@@ -46,14 +46,13 @@ func (s *Service) CreateAuthToken(
 	}
 
 	refreshExp := time.Now().Add(time.Hour * 24 * time.Duration(s.cfg.RefreshTokenLifetime))
-	expTs, err := ptypes.TimestampProto(refreshExp)
 
 	authLog := &user_service.AuthLog{
 		User:         user,
 		IsActive:     true,
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
-		ExpireAt:     expTs,
+		ExpireAt:     timestamppb.New(refreshExp),
 		Ip:           req.Ip,
 		UserAgent:    req.UserAgent,
 	}

@@ -21,6 +21,7 @@ require (
 	github.com/stretchr/testify v1.7.0
 	go.uber.org/zap v1.21.0
 	golang.org/x/crypto v0.0.0-20200221231518-2aa609cf4a9d
+	google.golang.org/protobuf v1.27.1
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
 )
 

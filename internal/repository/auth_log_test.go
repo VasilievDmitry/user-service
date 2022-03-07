@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"github.com/golang/protobuf/ptypes"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/lotproject/go-helpers/db"
@@ -13,6 +12,7 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"testing"
+	"time"
 )
 
 type AuthLogTestSuite struct {
@@ -82,15 +82,7 @@ func (suite *AuthLogTestSuite) TearDownTest() {
 func (suite *AuthLogTestSuite) Test_CRUD() {
 	var (
 		ctx = context.Background()
-		log = &user_service.AuthLog{
-			AccessToken:  "access_token",
-			RefreshToken: "refresh_token",
-			UserAgent:    "user_agent",
-			Ip:           "ip",
-			IsActive:     true,
-			ExpireAt:     ptypes.TimestampNow(),
-			User:         suite.user,
-		}
+		log = suite.getDefaultLog()
 	)
 
 	err := suite.authLogRep.Insert(ctx, log)
@@ -115,18 +107,34 @@ func (suite *AuthLogTestSuite) Test_CRUD() {
 	assert.GreaterOrEqual(suite.T(), log3.UpdatedAt.Seconds, log2.UpdatedAt.Seconds)
 }
 
+func (suite *AuthLogTestSuite) Test_Insert_MappingError() {
+	var (
+		ctx = context.Background()
+		log = suite.getDefaultLog()
+	)
+
+	log.ExpireAt = nil
+
+	err := suite.authLogRep.Insert(ctx, log)
+	assert.Error(suite.T(), err)
+}
+
+func (suite *AuthLogTestSuite) Test_Update_MappingError() {
+	var (
+		ctx = context.Background()
+		log = suite.getDefaultLog()
+	)
+
+	log.ExpireAt = nil
+
+	err := suite.authLogRep.Update(ctx, log)
+	assert.Error(suite.T(), err)
+}
+
 func (suite *AuthLogTestSuite) Test_GetByActiveAccessToken() {
 	var (
 		ctx = context.Background()
-		log = &user_service.AuthLog{
-			AccessToken:  "access_token",
-			RefreshToken: "refresh_token",
-			UserAgent:    "user_agent",
-			Ip:           "ip",
-			IsActive:     true,
-			ExpireAt:     ptypes.TimestampNow(),
-			User:         suite.user,
-		}
+		log = suite.getDefaultLog()
 	)
 
 	err := suite.authLogRep.Insert(ctx, log)
@@ -151,16 +159,10 @@ func (suite *AuthLogTestSuite) Test_GetByActiveAccessToken() {
 func (suite *AuthLogTestSuite) Test_GetByDisabledAccessToken() {
 	var (
 		ctx = context.Background()
-		log = &user_service.AuthLog{
-			AccessToken:  "access_token",
-			RefreshToken: "refresh_token",
-			UserAgent:    "user_agent",
-			Ip:           "ip",
-			IsActive:     false,
-			ExpireAt:     ptypes.TimestampNow(),
-			User:         suite.user,
-		}
+		log = suite.getDefaultLog()
 	)
+
+	log.IsActive = false
 
 	err := suite.authLogRep.Insert(ctx, log)
 	assert.NoError(suite.T(), err)
@@ -173,15 +175,7 @@ func (suite *AuthLogTestSuite) Test_GetByDisabledAccessToken() {
 func (suite *AuthLogTestSuite) Test_GetByUnknownAccessToken() {
 	var (
 		ctx = context.Background()
-		log = &user_service.AuthLog{
-			AccessToken:  "access_token",
-			RefreshToken: "refresh_token",
-			UserAgent:    "user_agent",
-			Ip:           "ip",
-			IsActive:     false,
-			ExpireAt:     ptypes.TimestampNow(),
-			User:         suite.user,
-		}
+		log = suite.getDefaultLog()
 	)
 
 	err := suite.authLogRep.Insert(ctx, log)
@@ -192,18 +186,25 @@ func (suite *AuthLogTestSuite) Test_GetByUnknownAccessToken() {
 	assert.Error(suite.T(), err)
 }
 
+func (suite *AuthLogTestSuite) Test_GetByAccessToken_MappingError() {
+	var (
+		ctx = context.Background()
+		log = suite.getDefaultLog()
+	)
+
+	log.CreatedAt = timestamppb.New(time.Time{})
+
+	err := suite.authLogRep.Insert(ctx, log)
+	assert.NoError(suite.T(), err)
+
+	_, err = suite.authLogRep.GetByAccessToken(ctx, log.AccessToken)
+	assert.Error(suite.T(), err)
+}
+
 func (suite *AuthLogTestSuite) Test_GetByActiveRefreshToken() {
 	var (
 		ctx = context.Background()
-		log = &user_service.AuthLog{
-			AccessToken:  "access_token",
-			RefreshToken: "refresh_token",
-			UserAgent:    "user_agent",
-			Ip:           "ip",
-			IsActive:     true,
-			ExpireAt:     timestamppb.Now(),
-			User:         suite.user,
-		}
+		log = suite.getDefaultLog()
 	)
 
 	err := suite.authLogRep.Insert(ctx, log)
@@ -228,16 +229,10 @@ func (suite *AuthLogTestSuite) Test_GetByActiveRefreshToken() {
 func (suite *AuthLogTestSuite) Test_GetByDisabledRefreshToken() {
 	var (
 		ctx = context.Background()
-		log = &user_service.AuthLog{
-			AccessToken:  "access_token",
-			RefreshToken: "refresh_token",
-			UserAgent:    "user_agent",
-			Ip:           "ip",
-			IsActive:     false,
-			ExpireAt:     timestamppb.Now(),
-			User:         suite.user,
-		}
+		log = suite.getDefaultLog()
 	)
+
+	log.IsActive = false
 
 	err := suite.authLogRep.Insert(ctx, log)
 	assert.NoError(suite.T(), err)
@@ -247,18 +242,25 @@ func (suite *AuthLogTestSuite) Test_GetByDisabledRefreshToken() {
 	assert.Error(suite.T(), err)
 }
 
+func (suite *AuthLogTestSuite) Test_GetByRefreshToken_MappingError() {
+	var (
+		ctx = context.Background()
+		log = suite.getDefaultLog()
+	)
+
+	log.CreatedAt = timestamppb.New(time.Time{})
+
+	err := suite.authLogRep.Insert(ctx, log)
+	assert.NoError(suite.T(), err)
+
+	_, err = suite.authLogRep.GetByRefreshToken(ctx, log.RefreshToken)
+	assert.Error(suite.T(), err)
+}
+
 func (suite *AuthLogTestSuite) Test_GetByUnknownRefreshToken() {
 	var (
 		ctx = context.Background()
-		log = &user_service.AuthLog{
-			AccessToken:  "access_token",
-			RefreshToken: "refresh_token",
-			UserAgent:    "user_agent",
-			Ip:           "ip",
-			IsActive:     false,
-			ExpireAt:     ptypes.TimestampNow(),
-			User:         suite.user,
-		}
+		log = suite.getDefaultLog()
 	)
 
 	err := suite.authLogRep.Insert(ctx, log)
@@ -267,4 +269,16 @@ func (suite *AuthLogTestSuite) Test_GetByUnknownRefreshToken() {
 
 	_, err = suite.authLogRep.GetByRefreshToken(ctx, "unknown")
 	assert.Error(suite.T(), err)
+}
+
+func (suite *AuthLogTestSuite) getDefaultLog() *user_service.AuthLog {
+	return &user_service.AuthLog{
+		AccessToken:  "access_token",
+		RefreshToken: "refresh_token",
+		UserAgent:    "user_agent",
+		Ip:           "ip",
+		IsActive:     true,
+		ExpireAt:     timestamppb.Now(),
+		User:         suite.user,
+	}
 }

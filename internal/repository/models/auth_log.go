@@ -3,8 +3,8 @@ package models
 import (
 	"database/sql"
 	"errors"
-	"github.com/golang/protobuf/ptypes"
 	"github.com/lotproject/go-proto/go/user_service"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"time"
 )
 
@@ -37,6 +37,12 @@ func (m *authLogMapper) MapProtoToModel(obj interface{}) (interface{}, error) {
 		AccessToken:  in.AccessToken,
 		RefreshToken: in.RefreshToken,
 		IsActive:     in.IsActive,
+		CreatedAt:    time.Now(),
+		UpdatedAt:    sql.NullTime{Time: time.Now(), Valid: true},
+	}
+
+	if in.ExpireAt == nil {
+		return nil, errors.New("expire time cannot be empty")
 	}
 
 	if in.Id != 0 {
@@ -44,24 +50,10 @@ func (m *authLogMapper) MapProtoToModel(obj interface{}) (interface{}, error) {
 	}
 
 	if in.CreatedAt != nil {
-		t, err := ptypes.Timestamp(in.CreatedAt)
-		if err != nil {
-			return nil, err
-		}
-
-		out.CreatedAt = t
-	} else {
-		out.CreatedAt = time.Now()
+		out.CreatedAt = in.CreatedAt.AsTime()
 	}
 
-	t, err := ptypes.Timestamp(in.ExpireAt)
-	if err != nil {
-		return nil, err
-	}
-
-	out.ExpireAt = t
-
-	out.UpdatedAt = sql.NullTime{Time: time.Now(), Valid: true}
+	out.ExpireAt = in.ExpireAt.AsTime()
 
 	return out, nil
 }
@@ -77,6 +69,9 @@ func (m *authLogMapper) MapModelToProto(obj interface{}) (interface{}, error) {
 		AccessToken:  in.AccessToken,
 		RefreshToken: in.RefreshToken,
 		IsActive:     in.IsActive,
+		ExpireAt:     timestamppb.New(in.ExpireAt),
+		CreatedAt:    timestamppb.New(in.CreatedAt),
+		UpdatedAt:    timestamppb.New(in.UpdatedAt.Time),
 	}
 
 	if in.User == nil {
@@ -90,23 +85,16 @@ func (m *authLogMapper) MapModelToProto(obj interface{}) (interface{}, error) {
 
 	out.User = user.(*user_service.User)
 
-	out.CreatedAt, err = ptypes.TimestampProto(in.CreatedAt)
-
-	if err != nil {
-		return nil, err
+	if in.ExpireAt.IsZero() {
+		return nil, errors.New("expire time cannot be empty")
 	}
 
-	out.ExpireAt, err = ptypes.TimestampProto(in.ExpireAt)
-
-	if err != nil {
-		return nil, err
+	if in.CreatedAt.IsZero() {
+		return nil, errors.New("created time cannot be empty")
 	}
 
-	if in.UpdatedAt.Valid {
-		out.UpdatedAt, err = ptypes.TimestampProto(in.UpdatedAt.Time)
-		if err != nil {
-			return nil, err
-		}
+	if !in.UpdatedAt.Valid {
+		return nil, errors.New("updated time cannot be empty")
 	}
 
 	return out, nil
