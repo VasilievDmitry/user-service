@@ -1,5 +1,9 @@
 # UserService
 
+[![Build Status](https://github.com/lotproject/user-service/workflows/Build/badge.svg?branch=develop)](https://github.com/lotproject/user-service/actions)
+[![Code Coverage](https://codecov.io/gh/lotproject/user-service/branch/develop/graph/badge.svg)](https://codecov.io/gh/lotproject/user-service)
+[![Go Report Card](https://goreportcard.com/badge/github.com/lotproject/user-service)](https://goreportcard.com/report/github.com/lotproject/user-service)
+
 Сервис предназначен для регистрации, авторизации и управление данными пользователя.
 
 ### Переменные окружения

@@ -37,7 +37,15 @@ jobs:
           ACCESS_TOKEN_SECRET: secret
           TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           GOPRIVATE: "github.com/lotproject"
-        run: git config --global --add url."https://pr0head:${TOKEN}@github.com/".insteadOf "https://github.com/" && go test ./internal/... -coverprofile=coverage.out -covermode=atomic
+        run: git config --global --add url."https://pr0head:${TOKEN}@github.com/".insteadOf "https://github.com/" && go test ./internal/... -coverprofile=coverage.txt -covermode=atomic
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+
+      - name: Run Vet & Lint
+        run: |
+          go vet .
+          golint -set_exit_status=1
 
       - name: send telegram message on push
         uses: appleboy/telegram-action@master

@@ -61,13 +61,13 @@ func (_m *AuthLogRepositoryInterface) GetByRefreshToken(ctx context.Context, tok
 	return r0, r1
 }
 
-// Insert provides a mock function with given fields: ctx, auth
-func (_m *AuthLogRepositoryInterface) Insert(ctx context.Context, auth *user_service.AuthLog) error {
-	ret := _m.Called(ctx, auth)
+// Insert provides a mock function with given fields: ctx, log
+func (_m *AuthLogRepositoryInterface) Insert(ctx context.Context, log *user_service.AuthLog) error {
+	ret := _m.Called(ctx, log)
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(context.Context, *user_service.AuthLog) error); ok {
-		r0 = rf(ctx, auth)
+		r0 = rf(ctx, log)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -75,13 +75,13 @@ func (_m *AuthLogRepositoryInterface) Insert(ctx context.Context, auth *user_ser
 	return r0
 }
 
-// Update provides a mock function with given fields: ctx, auth
-func (_m *AuthLogRepositoryInterface) Update(ctx context.Context, auth *user_service.AuthLog) error {
-	ret := _m.Called(ctx, auth)
+// Update provides a mock function with given fields: ctx, log
+func (_m *AuthLogRepositoryInterface) Update(ctx context.Context, log *user_service.AuthLog) error {
+	ret := _m.Called(ctx, log)
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(context.Context, *user_service.AuthLog) error); ok {
-		r0 = rf(ctx, auth)
+		r0 = rf(ctx, log)
 	} else {
 		r0 = ret.Error(0)
 	}

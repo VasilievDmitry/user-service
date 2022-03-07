@@ -38,13 +38,13 @@ func (_m *AuthProviderRepositoryInterface) GetByToken(ctx context.Context, provi
 	return r0, r1
 }
 
-// Insert provides a mock function with given fields: ctx, auth
-func (_m *AuthProviderRepositoryInterface) Insert(ctx context.Context, auth *user_service.AuthProvider) error {
-	ret := _m.Called(ctx, auth)
+// Insert provides a mock function with given fields: ctx, provider
+func (_m *AuthProviderRepositoryInterface) Insert(ctx context.Context, provider *user_service.AuthProvider) error {
+	ret := _m.Called(ctx, provider)
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(context.Context, *user_service.AuthProvider) error); ok {
-		r0 = rf(ctx, auth)
+		r0 = rf(ctx, provider)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -52,13 +52,13 @@ func (_m *AuthProviderRepositoryInterface) Insert(ctx context.Context, auth *use
 	return r0
 }
 
-// Update provides a mock function with given fields: ctx, auth
-func (_m *AuthProviderRepositoryInterface) Update(ctx context.Context, auth *user_service.AuthProvider) error {
-	ret := _m.Called(ctx, auth)
+// Update provides a mock function with given fields: ctx, provider
+func (_m *AuthProviderRepositoryInterface) Update(ctx context.Context, provider *user_service.AuthProvider) error {
+	ret := _m.Called(ctx, provider)
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(context.Context, *user_service.AuthProvider) error); ok {
-		r0 = rf(ctx, auth)
+		r0 = rf(ctx, provider)
 	} else {
 		r0 = ret.Error(0)
 	}

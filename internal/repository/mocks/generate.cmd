@@ -1,0 +1,1 @@
+mockery --all --dir=../ --output=.

@@ -136,7 +136,7 @@ func (r *authLogRepository) Update(ctx context.Context, log *user_service.AuthLo
 			refresh_token=:refresh_token, 
 			is_active=:is_active, 
 			expire_at=:expire_at, 
-			created_at=:created_at 
+			updated_at=:updated_at 
 		WHERE id=:id`
 	_, err = r.db.NamedExecContext(ctx, query, model)
 
