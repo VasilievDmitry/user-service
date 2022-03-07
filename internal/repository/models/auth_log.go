@@ -53,6 +53,8 @@ func (m *authLogMapper) MapProtoToModel(obj interface{}) (interface{}, error) {
 	if in.CreatedAt != nil {
 		out.CreatedAt = in.CreatedAt.AsTime()
 	}
+
+	in.ExpireAt.Nanos = 0
 	out.ExpireAt = in.ExpireAt.AsTime()
 	fmt.Println("MapProtoToModel", in.ExpireAt.Seconds)
 	fmt.Println("MapProtoToModel", out.ExpireAt.Format(time.RFC3339))

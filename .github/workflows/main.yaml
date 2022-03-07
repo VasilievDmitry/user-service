@@ -51,12 +51,6 @@ jobs:
           token: ${{ secrets.TELEGRAM_TOKEN }}
           format: markdown
           message: |
-            Build `${{ github.repository }}` [${{ job.status }}](https://github.com/${{ github.repository }}/runs/${{github.action}})
+            The `${{ github.repository }}` repo was built [${{ job.status }}](https://github.com/${{ github.repository }}/actions).
 
-            [${{ github.event.commits[0].message }}](https://github.com/${{ github.repository }}/commit/${{github.sha}})
-
-            ${{github.workflow}}
-            ${{github.action}}
-            ${{github.event.name}}
-            ${{github.event.path}}
-            ${{github.workspace}}
+            ${{ github.event.commits[0].message }} ([show commit](https://github.com/${{ github.repository }}/commit/${{github.sha}}))
