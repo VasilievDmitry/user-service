@@ -3,8 +3,8 @@ package models
 import (
 	"database/sql"
 	"errors"
-	"github.com/golang/protobuf/ptypes"
 	"github.com/lotproject/go-proto/go/user_service"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"time"
 )
 
@@ -27,9 +27,11 @@ type AuthProvider struct {
 func (m *authProviderMapper) MapProtoToModel(obj interface{}) (interface{}, error) {
 	in := obj.(*user_service.AuthProvider)
 	out := &AuthProvider{
-		UserId:   in.User.Id,
-		Provider: in.Provider,
-		Token:    in.Token,
+		UserId:    in.User.Id,
+		Provider:  in.Provider,
+		Token:     in.Token,
+		CreatedAt: time.Now(),
+		UpdatedAt: sql.NullTime{Time: time.Now(), Valid: true},
 	}
 
 	if in.Id != 0 {
@@ -37,17 +39,8 @@ func (m *authProviderMapper) MapProtoToModel(obj interface{}) (interface{}, erro
 	}
 
 	if in.CreatedAt != nil {
-		t, err := ptypes.Timestamp(in.CreatedAt)
-		if err != nil {
-			return nil, err
-		}
-
-		out.CreatedAt = t
-	} else {
-		out.CreatedAt = time.Now()
+		out.CreatedAt = in.CreatedAt.AsTime()
 	}
-
-	out.UpdatedAt = sql.NullTime{Time: time.Now(), Valid: true}
 
 	return out, nil
 }
@@ -57,9 +50,11 @@ func (m *authProviderMapper) MapModelToProto(obj interface{}) (interface{}, erro
 
 	in := obj.(*AuthProvider)
 	out := &user_service.AuthProvider{
-		Id:       in.Id,
-		Provider: in.Provider,
-		Token:    in.Token,
+		Id:        in.Id,
+		Provider:  in.Provider,
+		Token:     in.Token,
+		CreatedAt: timestamppb.New(in.CreatedAt),
+		UpdatedAt: timestamppb.New(in.UpdatedAt.Time),
 	}
 
 	if in.User == nil {
@@ -73,21 +68,12 @@ func (m *authProviderMapper) MapModelToProto(obj interface{}) (interface{}, erro
 
 	out.User = user.(*user_service.User)
 
-	out.CreatedAt, err = ptypes.TimestampProto(in.CreatedAt)
-
-	if err != nil {
-		return nil, err
+	if in.CreatedAt.IsZero() {
+		return nil, errors.New("created time cannot be empty")
 	}
 
-	if err != nil {
-		return nil, err
-	}
-
-	if in.UpdatedAt.Valid {
-		out.UpdatedAt, err = ptypes.TimestampProto(in.UpdatedAt.Time)
-		if err != nil {
-			return nil, err
-		}
+	if !in.UpdatedAt.Valid {
+		return nil, errors.New("updated time cannot be empty")
 	}
 
 	return out, nil

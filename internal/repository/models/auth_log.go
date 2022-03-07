@@ -3,6 +3,7 @@ package models
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"github.com/lotproject/go-proto/go/user_service"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"time"
@@ -52,9 +53,9 @@ func (m *authLogMapper) MapProtoToModel(obj interface{}) (interface{}, error) {
 	if in.CreatedAt != nil {
 		out.CreatedAt = in.CreatedAt.AsTime()
 	}
-
 	out.ExpireAt = in.ExpireAt.AsTime()
-
+	fmt.Println("MapProtoToModel", in.ExpireAt.Seconds)
+	fmt.Println("MapProtoToModel", out.ExpireAt.Format(time.RFC3339))
 	return out, nil
 }
 
@@ -73,7 +74,8 @@ func (m *authLogMapper) MapModelToProto(obj interface{}) (interface{}, error) {
 		CreatedAt:    timestamppb.New(in.CreatedAt),
 		UpdatedAt:    timestamppb.New(in.UpdatedAt.Time),
 	}
-
+	fmt.Println("MapModelToProto", in.ExpireAt.Format(time.RFC3339))
+	fmt.Println("MapModelToProto", out.ExpireAt.Seconds)
 	if in.User == nil {
 		return nil, errors.New("user cannot be empty")
 	}

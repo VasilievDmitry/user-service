@@ -12,7 +12,6 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"testing"
-	"time"
 )
 
 type AuthLogTestSuite struct {
@@ -186,21 +185,6 @@ func (suite *AuthLogTestSuite) Test_GetByUnknownAccessToken() {
 	assert.Error(suite.T(), err)
 }
 
-func (suite *AuthLogTestSuite) Test_GetByAccessToken_MappingError() {
-	var (
-		ctx = context.Background()
-		log = suite.getDefaultLog()
-	)
-
-	log.CreatedAt = timestamppb.New(time.Time{})
-
-	err := suite.authLogRep.Insert(ctx, log)
-	assert.NoError(suite.T(), err)
-
-	_, err = suite.authLogRep.GetByAccessToken(ctx, log.AccessToken)
-	assert.Error(suite.T(), err)
-}
-
 func (suite *AuthLogTestSuite) Test_GetByActiveRefreshToken() {
 	var (
 		ctx = context.Background()
@@ -237,21 +221,6 @@ func (suite *AuthLogTestSuite) Test_GetByDisabledRefreshToken() {
 	err := suite.authLogRep.Insert(ctx, log)
 	assert.NoError(suite.T(), err)
 	assert.NotEmpty(suite.T(), log.Id)
-
-	_, err = suite.authLogRep.GetByRefreshToken(ctx, log.RefreshToken)
-	assert.Error(suite.T(), err)
-}
-
-func (suite *AuthLogTestSuite) Test_GetByRefreshToken_MappingError() {
-	var (
-		ctx = context.Background()
-		log = suite.getDefaultLog()
-	)
-
-	log.CreatedAt = timestamppb.New(time.Time{})
-
-	err := suite.authLogRep.Insert(ctx, log)
-	assert.NoError(suite.T(), err)
 
 	_, err = suite.authLogRep.GetByRefreshToken(ctx, log.RefreshToken)
 	assert.Error(suite.T(), err)
