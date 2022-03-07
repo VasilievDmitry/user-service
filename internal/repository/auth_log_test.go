@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"testing"
 )
 
@@ -200,7 +201,7 @@ func (suite *AuthLogTestSuite) Test_GetByActiveRefreshToken() {
 			UserAgent:    "user_agent",
 			Ip:           "ip",
 			IsActive:     true,
-			ExpireAt:     ptypes.TimestampNow(),
+			ExpireAt:     timestamppb.Now(),
 			User:         suite.user,
 		}
 	)
@@ -233,7 +234,7 @@ func (suite *AuthLogTestSuite) Test_GetByDisabledRefreshToken() {
 			UserAgent:    "user_agent",
 			Ip:           "ip",
 			IsActive:     false,
-			ExpireAt:     ptypes.TimestampNow(),
+			ExpireAt:     timestamppb.Now(),
 			User:         suite.user,
 		}
 	)
