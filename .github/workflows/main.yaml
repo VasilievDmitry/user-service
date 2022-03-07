@@ -13,6 +13,7 @@ jobs:
       DB_DATABASE: lot_user_test
       DB_USER: root
       DB_PASSWORD: root
+      CODECOV_TOKEN: f92ed97a-6609-4b83-8df9-34ecfdc01dd4
     steps:
       - name: Set up MySQL
         run: |
