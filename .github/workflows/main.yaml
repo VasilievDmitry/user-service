@@ -51,8 +51,12 @@ jobs:
           token: ${{ secrets.TELEGRAM_TOKEN }}
           format: markdown
           message: |
-            Build `${{ github.repository }}` ${{ job.status }}
+            Build `${{ github.repository }}` [${{ job.status }}](https://github.com/${{ github.repository }}/runs/${{github.action}})
 
-            ${{ github.event.commits[0].message }}
+            [${{ github.event.commits[0].message }}](https://github.com/${{ github.repository }}/commit/${{github.sha}})
 
-            See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}
+            ${{github.workflow}}
+            ${{github.action}}
+            ${{github.event.name}}
+            ${{github.event.path}}
+            ${{github.workspace}}
