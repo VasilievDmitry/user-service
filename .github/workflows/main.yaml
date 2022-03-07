@@ -44,6 +44,7 @@ jobs:
         uses: codecov/codecov-action@v1
 
       - name: send telegram message on push
+        if: always()
         uses: appleboy/telegram-action@master
         with:
           to: ${{ secrets.TELEGRAM_TO }}
