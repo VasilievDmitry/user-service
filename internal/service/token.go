@@ -80,24 +80,19 @@ func (s *Service) RefreshAccessToken(
 		return s.buildGetAuthLogError(err)
 	}
 
-	user, err := s.repositories.User.GetById(ctx, authLog.User.Id)
-
-	if err != nil {
-		return s.buildGetUserError(err)
-	}
-
 	accessToken, err := createJwtToken(
-		user.Id,
+		authLog.User.Id,
 		s.cfg.AccessTokenLifetime,
 		s.cfg.AccessTokenSigningMethod,
 		s.cfg.AccessTokenSecret,
 	)
 
 	if err != nil {
-
 		s.log.Error("Unable to create JWT token", zap.Error(err))
 		return errors.InternalServerError(user_service.ServiceName, user_service.ErrorInternalError)
 	}
+
+	authLog.AccessToken = accessToken
 
 	if err = s.repositories.AuthLog.Update(ctx, authLog); err != nil {
 		return errors.InternalServerError(user_service.ServiceName, user_service.ErrorInternalError)
