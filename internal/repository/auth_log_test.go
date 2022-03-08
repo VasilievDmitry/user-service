@@ -61,7 +61,7 @@ func (suite *AuthLogTestSuite) SetupTest() {
 		Id: uuid.NewString(),
 	}
 
-	if err := suite.userRep.Insert(context.TODO(), suite.user); err != nil {
+	if err := suite.userRep.Insert(context.Background(), suite.user); err != nil {
 		assert.FailNow(suite.T(), "unable to create user for test", suite.user)
 	}
 }

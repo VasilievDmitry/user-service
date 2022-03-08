@@ -25,11 +25,11 @@ func (s *Service) CreateUserByWallet(
 			return errors.InternalServerError(user_service.ServiceName, user_service.ErrorInternalError)
 		}
 
-		newUser := &user_service.User{
+		user = &user_service.User{
 			IsActive: true,
 		}
 
-		if err = s.repositories.User.Insert(ctx, newUser); err != nil {
+		if err = s.repositories.User.Insert(ctx, user); err != nil {
 			return errors.InternalServerError(user_service.ServiceName, user_service.ErrorInternalError)
 		}
 
@@ -41,10 +41,6 @@ func (s *Service) CreateUserByWallet(
 
 		if err = s.repositories.AuthProvider.Insert(ctx, authProvider); err != nil {
 			return errors.InternalServerError(user_service.ServiceName, user_service.ErrorInternalError)
-		}
-
-		if user, err = s.repositories.User.GetById(ctx, newUser.Id); err != nil {
-			return s.buildGetUserError(err)
 		}
 	} else {
 		user = authProvider.User

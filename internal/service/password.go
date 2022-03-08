@@ -60,10 +60,10 @@ func (s *Service) SetPassword(
 
 func (s *Service) CreatePasswordRecoveryCode(
 	ctx context.Context,
-	req *user_service.UserProfile,
+	req *user_service.CreatePasswordRecoveryCodeRequest,
 	res *user_service.CreatePasswordRecoveryCodeResponse,
 ) error {
-	user, err := s.repositories.User.GetById(ctx, req.Id)
+	user, err := s.repositories.User.GetById(ctx, req.UserId)
 
 	if err != nil {
 		return s.buildGetUserError(err)
