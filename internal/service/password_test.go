@@ -40,6 +40,7 @@ func (suite *PasswordTestSuite) SetupSuite() {
 }
 
 func (suite *PasswordTestSuite) SetupTest() {
+	suite.service.cfg.BcryptCost = bcrypt.MinCost
 }
 
 func (suite *PasswordTestSuite) TearDownTest() {
@@ -138,6 +139,33 @@ func (suite *PasswordTestSuite) Test_SetPassword_GetUserDbError() {
 	assert.Equal(suite.T(), user_service.ServiceName, mErr.Id)
 	assert.Equal(suite.T(), int32(404), mErr.Code)
 	assert.Equal(suite.T(), user_service.ErrorUserNotFound, mErr.Detail)
+}
+
+func (suite *PasswordTestSuite) Test_SetPassword_GenerateFromPasswordError() {
+	var (
+		ctx = context.Background()
+		req = &user_service.SetPasswordRequest{
+			UserId: "user_id",
+		}
+		user = &user_service.User{
+			Id: req.UserId,
+		}
+	)
+
+	userRep := &mocks.UserRepositoryInterface{}
+	userRep.On("GetById", ctx, req.UserId).Return(user, nil)
+	suite.service.repositories.User = userRep
+
+	suite.service.cfg.BcryptCost = bcrypt.MaxCost + 1
+
+	err := suite.service.SetPassword(ctx, req, nil)
+	assert.Error(suite.T(), err)
+
+	mErr := microErrors.Parse(err.Error())
+	assert.NotEmpty(suite.T(), mErr)
+	assert.Equal(suite.T(), user_service.ServiceName, mErr.Id)
+	assert.Equal(suite.T(), int32(500), mErr.Code)
+	assert.Equal(suite.T(), user_service.ErrorInternalError, mErr.Detail)
 }
 
 func (suite *PasswordTestSuite) Test_SetPassword_UpdateUserDbError() {
@@ -312,6 +340,35 @@ func (suite *PasswordTestSuite) Test_UsePasswordRecoveryCode_InvalidRecoveryCode
 	assert.Equal(suite.T(), user_service.ServiceName, mErr.Id)
 	assert.Equal(suite.T(), int32(400), mErr.Code)
 	assert.Equal(suite.T(), user_service.ErrorRecoveryCodeInvalid, mErr.Detail)
+}
+
+func (suite *PasswordTestSuite) Test_UsePasswordRecoveryCode_GenerateFromPasswordError() {
+	var (
+		ctx = context.Background()
+		req = &user_service.UsePasswordRecoveryCodeRequest{
+			UserId: "user_id",
+			Code:   "code",
+		}
+		user = &user_service.User{
+			Id:           req.UserId,
+			RecoveryCode: "code",
+		}
+	)
+
+	userRep := &mocks.UserRepositoryInterface{}
+	userRep.On("GetById", ctx, req.UserId).Return(user, nil)
+	suite.service.repositories.User = userRep
+
+	suite.service.cfg.BcryptCost = bcrypt.MaxCost + 1
+
+	err := suite.service.UsePasswordRecoveryCode(ctx, req, nil)
+	assert.Error(suite.T(), err)
+
+	mErr := microErrors.Parse(err.Error())
+	assert.NotEmpty(suite.T(), mErr)
+	assert.Equal(suite.T(), user_service.ServiceName, mErr.Id)
+	assert.Equal(suite.T(), int32(500), mErr.Code)
+	assert.Equal(suite.T(), user_service.ErrorInternalError, mErr.Detail)
 }
 
 func (suite *PasswordTestSuite) Test_UsePasswordRecoveryCode_UpdateUserDbError() {
