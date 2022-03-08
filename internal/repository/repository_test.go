@@ -27,7 +27,7 @@ func (suite *RepositoryTestSuite) SetupTest() {
 func (suite *RepositoryTestSuite) TearDownTest() {
 }
 
-func (suite *AuthLogTestSuite) Test_InitRepositories() {
+func (suite *RepositoryTestSuite) Test_InitRepositories() {
 	reps := InitRepositories(nil, nil)
 	assert.IsType(suite.T(), (*Repositories)(nil), reps)
 }
