@@ -2,11 +2,15 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"github.com/jmoiron/sqlx"
 	"github.com/lotproject/go-helpers/db"
 	"github.com/lotproject/go-proto/go/user_service"
 	"github.com/lotproject/user-service/config"
+	"github.com/lotproject/user-service/internal/repository/mocks"
+	"github.com/lotproject/user-service/internal/repository/models"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 	"testing"
@@ -15,7 +19,7 @@ import (
 type UserTestSuite struct {
 	suite.Suite
 	db      *sqlx.DB
-	userRep UserRepositoryInterface
+	userRep *userRepository
 	cfg     *config.Config
 }
 
@@ -48,10 +52,11 @@ func (suite *UserTestSuite) SetupSuite() {
 		suite.FailNow("Database migration failed", err)
 	}
 
-	suite.userRep = NewUserRepository(suite.db, log)
+	suite.userRep = NewUserRepository(suite.db, log).(*userRepository)
 }
 
 func (suite *UserTestSuite) SetupTest() {
+	suite.userRep.mapper = models.NewUserMapper()
 }
 
 func (suite *UserTestSuite) TearDownTest() {
@@ -114,7 +119,51 @@ func (suite *UserTestSuite) Test_CRUD() {
 	assert.GreaterOrEqual(suite.T(), user3.UpdatedAt.Seconds, user2.UpdatedAt.Seconds)
 }
 
-func (suite *UserTestSuite) Test_GetByActiveLogin() {
+func (suite *UserTestSuite) Test_Insert_MappingError() {
+	var (
+		ctx  = context.Background()
+		user = &user_service.User{
+			Login:          "login",
+			Password:       "password",
+			Username:       "username",
+			IsActive:       true,
+			EmailConfirmed: true,
+			EmailCode:      "email_code",
+			RecoveryCode:   "recovery_code",
+		}
+	)
+
+	mapper := &mocks.Mapper{}
+	mapper.On("MapProtoToModel", mock.Anything).Return(nil, errors.New("error"))
+	suite.userRep.mapper = mapper
+
+	err := suite.userRep.Insert(ctx, user)
+	assert.Error(suite.T(), err)
+}
+
+func (suite *UserTestSuite) Test_Update_MappingError() {
+	var (
+		ctx  = context.Background()
+		user = &user_service.User{
+			Login:          "login",
+			Password:       "password",
+			Username:       "username",
+			IsActive:       true,
+			EmailConfirmed: true,
+			EmailCode:      "email_code",
+			RecoveryCode:   "recovery_code",
+		}
+	)
+
+	mapper := &mocks.Mapper{}
+	mapper.On("MapProtoToModel", mock.Anything).Return(nil, errors.New("error"))
+	suite.userRep.mapper = mapper
+
+	err := suite.userRep.Update(ctx, user)
+	assert.Error(suite.T(), err)
+}
+
+func (suite *UserTestSuite) Test_GetByLogin_ByActive() {
 	var (
 		ctx  = context.Background()
 		user = &user_service.User{
@@ -146,7 +195,7 @@ func (suite *UserTestSuite) Test_GetByActiveLogin() {
 	assert.NotEmpty(suite.T(), user2.UpdatedAt)
 }
 
-func (suite *UserTestSuite) Test_GetByDisabledLogin() {
+func (suite *UserTestSuite) Test_GetByLogin_ByDisabled() {
 	var (
 		ctx  = context.Background()
 		user = &user_service.User{
@@ -168,7 +217,7 @@ func (suite *UserTestSuite) Test_GetByDisabledLogin() {
 	assert.Error(suite.T(), err)
 }
 
-func (suite *UserTestSuite) Test_GetByUnknownLogin() {
+func (suite *UserTestSuite) Test_GetByLogin_ByUnknown() {
 	var (
 		ctx  = context.Background()
 		user = &user_service.User{
@@ -190,7 +239,33 @@ func (suite *UserTestSuite) Test_GetByUnknownLogin() {
 	assert.Error(suite.T(), err)
 }
 
-func (suite *UserTestSuite) Test_GetByUnknownId() {
+func (suite *UserTestSuite) Test_GetByLogin_MappingError() {
+	var (
+		ctx  = context.Background()
+		user = &user_service.User{
+			Login:          "login",
+			Password:       "password",
+			Username:       "username",
+			IsActive:       true,
+			EmailConfirmed: true,
+			EmailCode:      "email_code",
+			RecoveryCode:   "recovery_code",
+		}
+	)
+
+	err := suite.userRep.Insert(ctx, user)
+	assert.NoError(suite.T(), err)
+	assert.NotEmpty(suite.T(), user.Id)
+
+	mapper := &mocks.Mapper{}
+	mapper.On("MapModelToProto", mock.Anything).Return(nil, errors.New("error"))
+	suite.userRep.mapper = mapper
+
+	_, err = suite.userRep.GetByLogin(ctx, user.Login)
+	assert.Error(suite.T(), err)
+}
+
+func (suite *UserTestSuite) Test_GetById_ByUnknown() {
 	var (
 		ctx  = context.Background()
 		user = &user_service.User{
@@ -209,5 +284,31 @@ func (suite *UserTestSuite) Test_GetByUnknownId() {
 	assert.NotEmpty(suite.T(), user.Id)
 
 	_, err = suite.userRep.GetById(ctx, "unknown")
+	assert.Error(suite.T(), err)
+}
+
+func (suite *UserTestSuite) Test_GetById_MappingError() {
+	var (
+		ctx  = context.Background()
+		user = &user_service.User{
+			Login:          "login",
+			Password:       "password",
+			Username:       "username",
+			IsActive:       true,
+			EmailConfirmed: true,
+			EmailCode:      "email_code",
+			RecoveryCode:   "recovery_code",
+		}
+	)
+
+	err := suite.userRep.Insert(ctx, user)
+	assert.NoError(suite.T(), err)
+	assert.NotEmpty(suite.T(), user.Id)
+
+	mapper := &mocks.Mapper{}
+	mapper.On("MapModelToProto", mock.Anything).Return(nil, errors.New("error"))
+	suite.userRep.mapper = mapper
+
+	_, err = suite.userRep.GetById(ctx, user.Id)
 	assert.Error(suite.T(), err)
 }

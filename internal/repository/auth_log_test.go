@@ -2,12 +2,16 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/lotproject/go-helpers/db"
 	"github.com/lotproject/go-proto/go/user_service"
 	"github.com/lotproject/user-service/config"
+	"github.com/lotproject/user-service/internal/repository/mocks"
+	"github.com/lotproject/user-service/internal/repository/models"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -17,8 +21,8 @@ import (
 type AuthLogTestSuite struct {
 	suite.Suite
 	db         *sqlx.DB
-	userRep    UserRepositoryInterface
-	authLogRep AuthLogRepositoryInterface
+	userRep    *userRepository
+	authLogRep *authLogRepository
 	user       *user_service.User
 	cfg        *config.Config
 }
@@ -52,11 +56,13 @@ func (suite *AuthLogTestSuite) SetupSuite() {
 		suite.FailNow("Database migration failed", err)
 	}
 
-	suite.userRep = NewUserRepository(suite.db, log)
-	suite.authLogRep = NewAuthLogRepository(suite.db, log)
+	suite.userRep = NewUserRepository(suite.db, log).(*userRepository)
+	suite.authLogRep = NewAuthLogRepository(suite.db, log).(*authLogRepository)
 }
 
 func (suite *AuthLogTestSuite) SetupTest() {
+	suite.authLogRep.mapper = models.NewAuthLogMapper()
+
 	suite.user = &user_service.User{
 		Id: uuid.NewString(),
 	}
@@ -116,7 +122,9 @@ func (suite *AuthLogTestSuite) Test_Insert_MappingError() {
 		log = suite.getDefaultLog()
 	)
 
-	log.ExpireAt = nil
+	mapper := &mocks.Mapper{}
+	mapper.On("MapProtoToModel", mock.Anything).Return(nil, errors.New("error"))
+	suite.authLogRep.mapper = mapper
 
 	err := suite.authLogRep.Insert(ctx, log)
 	assert.Error(suite.T(), err)
@@ -128,13 +136,15 @@ func (suite *AuthLogTestSuite) Test_Update_MappingError() {
 		log = suite.getDefaultLog()
 	)
 
-	log.ExpireAt = nil
+	mapper := &mocks.Mapper{}
+	mapper.On("MapProtoToModel", mock.Anything).Return(nil, errors.New("error"))
+	suite.authLogRep.mapper = mapper
 
 	err := suite.authLogRep.Update(ctx, log)
 	assert.Error(suite.T(), err)
 }
 
-func (suite *AuthLogTestSuite) Test_GetByActiveAccessToken() {
+func (suite *AuthLogTestSuite) Test_GetByAccessToken_ByActiveToken() {
 	var (
 		ctx = context.Background()
 		log = suite.getDefaultLog()
@@ -159,7 +169,7 @@ func (suite *AuthLogTestSuite) Test_GetByActiveAccessToken() {
 	assert.Equal(suite.T(), log.User.Id, log2.User.Id)
 }
 
-func (suite *AuthLogTestSuite) Test_GetByDisabledAccessToken() {
+func (suite *AuthLogTestSuite) Test_GetByAccessToken_ByDisabledToken() {
 	var (
 		ctx = context.Background()
 		log = suite.getDefaultLog()
@@ -175,7 +185,7 @@ func (suite *AuthLogTestSuite) Test_GetByDisabledAccessToken() {
 	assert.Error(suite.T(), err)
 }
 
-func (suite *AuthLogTestSuite) Test_GetByUnknownAccessToken() {
+func (suite *AuthLogTestSuite) Test_GetByAccessToken_ByUnknownToken() {
 	var (
 		ctx = context.Background()
 		log = suite.getDefaultLog()
@@ -189,7 +199,25 @@ func (suite *AuthLogTestSuite) Test_GetByUnknownAccessToken() {
 	assert.Error(suite.T(), err)
 }
 
-func (suite *AuthLogTestSuite) Test_GetByActiveRefreshToken() {
+func (suite *AuthLogTestSuite) Test_GetByAccessToken_MarringError() {
+	var (
+		ctx = context.Background()
+		log = suite.getDefaultLog()
+	)
+
+	err := suite.authLogRep.Insert(ctx, log)
+	assert.NoError(suite.T(), err)
+	assert.NotEmpty(suite.T(), log.Id)
+
+	mapper := &mocks.Mapper{}
+	mapper.On("MapModelToProto", mock.Anything).Return(nil, errors.New("error"))
+	suite.authLogRep.mapper = mapper
+
+	_, err = suite.authLogRep.GetByAccessToken(ctx, log.AccessToken)
+	assert.Error(suite.T(), err)
+}
+
+func (suite *AuthLogTestSuite) Test_GetByRefreshToken_ByActiveToken() {
 	var (
 		ctx = context.Background()
 		log = suite.getDefaultLog()
@@ -214,7 +242,7 @@ func (suite *AuthLogTestSuite) Test_GetByActiveRefreshToken() {
 	assert.Equal(suite.T(), log.User.Id, log2.User.Id)
 }
 
-func (suite *AuthLogTestSuite) Test_GetByDisabledRefreshToken() {
+func (suite *AuthLogTestSuite) Test_GetByRefreshToken_ByDisabledToken() {
 	var (
 		ctx = context.Background()
 		log = suite.getDefaultLog()
@@ -230,7 +258,7 @@ func (suite *AuthLogTestSuite) Test_GetByDisabledRefreshToken() {
 	assert.Error(suite.T(), err)
 }
 
-func (suite *AuthLogTestSuite) Test_GetByUnknownRefreshToken() {
+func (suite *AuthLogTestSuite) Test_GetByRefreshToken_ByUnknownToken() {
 	var (
 		ctx = context.Background()
 		log = suite.getDefaultLog()
@@ -241,6 +269,24 @@ func (suite *AuthLogTestSuite) Test_GetByUnknownRefreshToken() {
 	assert.NotEmpty(suite.T(), log.Id)
 
 	_, err = suite.authLogRep.GetByRefreshToken(ctx, "unknown")
+	assert.Error(suite.T(), err)
+}
+
+func (suite *AuthLogTestSuite) Test_GetByRefreshToken_MappingError() {
+	var (
+		ctx = context.Background()
+		log = suite.getDefaultLog()
+	)
+
+	err := suite.authLogRep.Insert(ctx, log)
+	assert.NoError(suite.T(), err)
+	assert.NotEmpty(suite.T(), log.Id)
+
+	mapper := &mocks.Mapper{}
+	mapper.On("MapModelToProto", mock.Anything).Return(nil, errors.New("error"))
+	suite.authLogRep.mapper = mapper
+
+	_, err = suite.authLogRep.GetByRefreshToken(ctx, log.RefreshToken)
 	assert.Error(suite.T(), err)
 }
 

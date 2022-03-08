@@ -2,12 +2,16 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/lotproject/go-helpers/db"
 	"github.com/lotproject/go-proto/go/user_service"
 	"github.com/lotproject/user-service/config"
+	"github.com/lotproject/user-service/internal/repository/mocks"
+	"github.com/lotproject/user-service/internal/repository/models"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 	"testing"
@@ -16,8 +20,8 @@ import (
 type AuthProviderTestSuite struct {
 	suite.Suite
 	db              *sqlx.DB
-	userRep         UserRepositoryInterface
-	authProviderRep AuthProviderRepositoryInterface
+	userRep         *userRepository
+	authProviderRep *authProviderRepository
 	user            *user_service.User
 	cfg             *config.Config
 }
@@ -51,11 +55,13 @@ func (suite *AuthProviderTestSuite) SetupSuite() {
 		suite.FailNow("Database migration failed", err)
 	}
 
-	suite.userRep = NewUserRepository(suite.db, log)
-	suite.authProviderRep = NewAuthProviderRepository(suite.db, log)
+	suite.userRep = NewUserRepository(suite.db, log).(*userRepository)
+	suite.authProviderRep = NewAuthProviderRepository(suite.db, log).(*authProviderRepository)
 }
 
 func (suite *AuthProviderTestSuite) SetupTest() {
+	suite.authProviderRep.mapper = models.NewAuthProviderMapper()
+
 	suite.user = &user_service.User{
 		Id: uuid.NewString(),
 	}
@@ -116,6 +122,42 @@ func (suite *AuthProviderTestSuite) Test_CRUD() {
 	assert.GreaterOrEqual(suite.T(), provider3.UpdatedAt.Seconds, provider2.UpdatedAt.Seconds)
 }
 
+func (suite *AuthProviderTestSuite) Test_Insert_MappingError() {
+	var (
+		ctx      = context.Background()
+		provider = &user_service.AuthProvider{
+			Token:    "token",
+			Provider: "provider",
+			User:     suite.user,
+		}
+	)
+
+	mapper := &mocks.Mapper{}
+	mapper.On("MapProtoToModel", mock.Anything).Return(nil, errors.New("error"))
+	suite.authProviderRep.mapper = mapper
+
+	err := suite.authProviderRep.Insert(ctx, provider)
+	assert.Error(suite.T(), err)
+}
+
+func (suite *AuthProviderTestSuite) Test_Update_MappingError() {
+	var (
+		ctx      = context.Background()
+		provider = &user_service.AuthProvider{
+			Token:    "token",
+			Provider: "provider",
+			User:     suite.user,
+		}
+	)
+
+	mapper := &mocks.Mapper{}
+	mapper.On("MapProtoToModel", mock.Anything).Return(nil, errors.New("error"))
+	suite.authProviderRep.mapper = mapper
+
+	err := suite.authProviderRep.Update(ctx, provider)
+	assert.Error(suite.T(), err)
+}
+
 func (suite *AuthProviderTestSuite) Test_GetByToken_UnknownProvider() {
 	var (
 		ctx      = context.Background()
@@ -149,5 +191,27 @@ func (suite *AuthProviderTestSuite) Test_GetByToken_UnknownToken() {
 	assert.NotEmpty(suite.T(), provider.Id)
 
 	_, err = suite.authProviderRep.GetByToken(ctx, provider.Provider, "unknown")
+	assert.Error(suite.T(), err)
+}
+
+func (suite *AuthProviderTestSuite) Test_GetByToken_MappingError() {
+	var (
+		ctx      = context.Background()
+		provider = &user_service.AuthProvider{
+			Token:    "token",
+			Provider: "provider",
+			User:     suite.user,
+		}
+	)
+
+	err := suite.authProviderRep.Insert(ctx, provider)
+	assert.NoError(suite.T(), err)
+	assert.NotEmpty(suite.T(), provider.Id)
+
+	mapper := &mocks.Mapper{}
+	mapper.On("MapModelToProto", mock.Anything).Return(nil, errors.New("error"))
+	suite.authProviderRep.mapper = mapper
+
+	_, err = suite.authProviderRep.GetByToken(ctx, provider.Provider, provider.Token)
 	assert.Error(suite.T(), err)
 }
