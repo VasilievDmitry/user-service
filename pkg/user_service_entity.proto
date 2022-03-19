@@ -1,0 +1,87 @@
+syntax = "proto3";
+
+package user_service;
+option go_package = "github.com/lotproject/user-service/pkg";
+
+import "google/protobuf/timestamp.proto";
+
+message User {
+  // @inject_tag: json:"id"
+  string id = 1;
+  // @inject_tag: json:"login"
+  string login = 2;
+  // @inject_tag: json:"-"
+  string password = 3;
+  // @inject_tag: json:"username"
+  string username = 4;
+  // @inject_tag: json:"-"
+  string email_code = 5;
+  // @inject_tag: json:"is_active"
+  bool email_confirmed = 6;
+  // @inject_tag: json:"-"
+  string recovery_code = 7;
+  // @inject_tag: json:"is_active"
+  bool is_active = 8;
+  // @inject_tag: json:"-"
+  google.protobuf.Timestamp created_at = 9;
+  // @inject_tag: json:"-"
+  google.protobuf.Timestamp updated_at = 10;
+}
+
+message UserProfile {
+  // @inject_tag: json:"user_id"
+  string id = 1;
+  // @inject_tag: json:"login"
+  string login = 2;
+  // @inject_tag: json:"username"
+  string username = 3;
+  // @inject_tag: json:"email_confirmed"
+  bool email_confirmed = 4;
+  // @inject_tag: json:"is_active"
+  bool is_active = 5;
+}
+
+message AuthLog {
+  // @inject_tag: json:"id"
+  int64 id = 1;
+  // @inject_tag: json:"user"
+  User user = 2;
+  // @inject_tag: json:"ip"
+  string ip = 3;
+  // @inject_tag: json:"user_agent"
+  string user_agent = 4;
+  // @inject_tag: json:"access_token"
+  string access_token = 5;
+  // @inject_tag: json:"refresh_token"
+  string refresh_token = 6;
+  // @inject_tag: json:"is_active"
+  bool is_active = 7;
+  // @inject_tag: json:"-"
+  google.protobuf.Timestamp created_at = 8;
+  // @inject_tag: json:"-"
+  google.protobuf.Timestamp expire_at = 9;
+  // @inject_tag: json:"-"
+  google.protobuf.Timestamp updated_at = 10;
+}
+
+message AuthProvider {
+  // @inject_tag: json:"id"
+  int64 id = 1;
+  // @inject_tag: json:"user"
+  User user = 2;
+  // @inject_tag: json:"provider"
+  string provider = 3;
+  // @inject_tag: json:"-"
+  string token = 4;
+  // @inject_tag: json:"-"
+  google.protobuf.Timestamp created_at = 5;
+  // @inject_tag: json:"-"
+  google.protobuf.Timestamp updated_at = 6;
+}
+
+message AuthToken {
+  // @inject_tag: json:"access_token"
+  string access_token = 1;
+  // @inject_tag: json:"refresh_token"
+  string refresh_token = 2;
+}
