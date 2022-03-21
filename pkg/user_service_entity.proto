@@ -39,6 +39,8 @@ message UserProfile {
   bool email_confirmed = 4;
   // @inject_tag: json:"is_active"
   bool is_active = 5;
+  // @inject_tag: json:"centrifugo_token,omitempty"
+  bool centrifugo_token = 6;
 }
 
 message AuthLog {
