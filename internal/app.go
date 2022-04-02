@@ -10,10 +10,10 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/lotproject/go-helpers/db"
 	"github.com/lotproject/go-helpers/log"
-	"github.com/lotproject/go-proto/go/user_service"
 	"github.com/lotproject/user-service/config"
 	"github.com/lotproject/user-service/internal/repository"
 	"github.com/lotproject/user-service/internal/service"
+	"github.com/lotproject/user-service/pkg"
 	"github.com/micro/go-micro"
 	"github.com/natefinch/lumberjack"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -128,7 +128,7 @@ func (app *Application) initLogger() {
 	)
 	logger := zap.New(core, zap.AddCaller())
 
-	app.log = logger.Named(user_service.ServiceName)
+	app.log = logger.Named(pkg.ServiceName)
 	zap.ReplaceGlobals(app.log)
 
 	app.log.Info("Logger init...")
@@ -159,7 +159,7 @@ func (app *Application) initDatabase() {
 
 func (app *Application) initMicroServices() {
 	options := []micro.Option{
-		micro.Name(user_service.ServiceName),
+		micro.Name(pkg.ServiceName),
 		micro.AfterStop(func() error {
 			app.log.Info("Micro service stopped")
 			app.Stop()
@@ -191,7 +191,7 @@ func (app *Application) Run() {
 		ReadHeaderTimeout: time.Duration(app.cfg.MetricsReadHeaderTimeout) * time.Second,
 	}
 
-	if err := user_service.RegisterUserServiceHandler(app.micro.Server(), app.service); err != nil {
+	if err := pkg.RegisterUserServiceHandler(app.micro.Server(), app.service); err != nil {
 		app.log.Fatal("Micro service starting failed", zap.Error(err))
 	}
 

@@ -5,10 +5,10 @@ import (
 	"errors"
 	"github.com/jmoiron/sqlx"
 	"github.com/lotproject/go-helpers/db"
-	"github.com/lotproject/go-proto/go/user_service"
 	"github.com/lotproject/user-service/config"
 	"github.com/lotproject/user-service/internal/repository/mocks"
 	"github.com/lotproject/user-service/internal/repository/models"
+	"github.com/lotproject/user-service/pkg"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
@@ -73,7 +73,7 @@ func (suite *AuthLogTestSuite) Test_NewUserRepository() {
 func (suite *UserTestSuite) Test_CRUD() {
 	var (
 		ctx  = context.Background()
-		user = &user_service.User{
+		user = &pkg.User{
 			Login:          "login",
 			Password:       "password",
 			Username:       "username",
@@ -122,7 +122,7 @@ func (suite *UserTestSuite) Test_CRUD() {
 func (suite *UserTestSuite) Test_Insert_MappingError() {
 	var (
 		ctx  = context.Background()
-		user = &user_service.User{
+		user = &pkg.User{
 			Login:          "login",
 			Password:       "password",
 			Username:       "username",
@@ -144,7 +144,7 @@ func (suite *UserTestSuite) Test_Insert_MappingError() {
 func (suite *UserTestSuite) Test_Update_MappingError() {
 	var (
 		ctx  = context.Background()
-		user = &user_service.User{
+		user = &pkg.User{
 			Login:          "login",
 			Password:       "password",
 			Username:       "username",
@@ -166,7 +166,7 @@ func (suite *UserTestSuite) Test_Update_MappingError() {
 func (suite *UserTestSuite) Test_GetByLogin_ByActive() {
 	var (
 		ctx  = context.Background()
-		user = &user_service.User{
+		user = &pkg.User{
 			Login:          "login",
 			Password:       "password",
 			Username:       "username",
@@ -198,7 +198,7 @@ func (suite *UserTestSuite) Test_GetByLogin_ByActive() {
 func (suite *UserTestSuite) Test_GetByLogin_ByDisabled() {
 	var (
 		ctx  = context.Background()
-		user = &user_service.User{
+		user = &pkg.User{
 			Login:          "login",
 			Password:       "password",
 			Username:       "username",
@@ -220,7 +220,7 @@ func (suite *UserTestSuite) Test_GetByLogin_ByDisabled() {
 func (suite *UserTestSuite) Test_GetByLogin_ByUnknown() {
 	var (
 		ctx  = context.Background()
-		user = &user_service.User{
+		user = &pkg.User{
 			Login:          "login",
 			Password:       "password",
 			Username:       "username",
@@ -242,7 +242,7 @@ func (suite *UserTestSuite) Test_GetByLogin_ByUnknown() {
 func (suite *UserTestSuite) Test_GetByLogin_MappingError() {
 	var (
 		ctx  = context.Background()
-		user = &user_service.User{
+		user = &pkg.User{
 			Login:          "login",
 			Password:       "password",
 			Username:       "username",
@@ -268,7 +268,7 @@ func (suite *UserTestSuite) Test_GetByLogin_MappingError() {
 func (suite *UserTestSuite) Test_GetById_ByUnknown() {
 	var (
 		ctx  = context.Background()
-		user = &user_service.User{
+		user = &pkg.User{
 			Login:          "login",
 			Password:       "password",
 			Username:       "username",
@@ -290,7 +290,7 @@ func (suite *UserTestSuite) Test_GetById_ByUnknown() {
 func (suite *UserTestSuite) Test_GetById_MappingError() {
 	var (
 		ctx  = context.Background()
-		user = &user_service.User{
+		user = &pkg.User{
 			Login:          "login",
 			Password:       "password",
 			Username:       "username",

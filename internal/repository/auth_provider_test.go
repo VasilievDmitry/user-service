@@ -6,10 +6,10 @@ import (
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/lotproject/go-helpers/db"
-	"github.com/lotproject/go-proto/go/user_service"
 	"github.com/lotproject/user-service/config"
 	"github.com/lotproject/user-service/internal/repository/mocks"
 	"github.com/lotproject/user-service/internal/repository/models"
+	"github.com/lotproject/user-service/pkg"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
@@ -22,7 +22,7 @@ type AuthProviderTestSuite struct {
 	db              *sqlx.DB
 	userRep         *userRepository
 	authProviderRep *authProviderRepository
-	user            *user_service.User
+	user            *pkg.User
 	cfg             *config.Config
 }
 
@@ -62,7 +62,7 @@ func (suite *AuthProviderTestSuite) SetupSuite() {
 func (suite *AuthProviderTestSuite) SetupTest() {
 	suite.authProviderRep.mapper = models.NewAuthProviderMapper()
 
-	suite.user = &user_service.User{
+	suite.user = &pkg.User{
 		Id: uuid.NewString(),
 	}
 
@@ -90,7 +90,7 @@ func (suite *AuthLogTestSuite) Test_NewAuthProviderRepository() {
 func (suite *AuthProviderTestSuite) Test_CRUD() {
 	var (
 		ctx      = context.Background()
-		provider = &user_service.AuthProvider{
+		provider = &pkg.AuthProvider{
 			Token:    "token",
 			Provider: "provider",
 			User:     suite.user,
@@ -125,7 +125,7 @@ func (suite *AuthProviderTestSuite) Test_CRUD() {
 func (suite *AuthProviderTestSuite) Test_Insert_MappingError() {
 	var (
 		ctx      = context.Background()
-		provider = &user_service.AuthProvider{
+		provider = &pkg.AuthProvider{
 			Token:    "token",
 			Provider: "provider",
 			User:     suite.user,
@@ -143,7 +143,7 @@ func (suite *AuthProviderTestSuite) Test_Insert_MappingError() {
 func (suite *AuthProviderTestSuite) Test_Update_MappingError() {
 	var (
 		ctx      = context.Background()
-		provider = &user_service.AuthProvider{
+		provider = &pkg.AuthProvider{
 			Token:    "token",
 			Provider: "provider",
 			User:     suite.user,
@@ -161,7 +161,7 @@ func (suite *AuthProviderTestSuite) Test_Update_MappingError() {
 func (suite *AuthProviderTestSuite) Test_GetByToken_UnknownProvider() {
 	var (
 		ctx      = context.Background()
-		provider = &user_service.AuthProvider{
+		provider = &pkg.AuthProvider{
 			Token:    "token",
 			Provider: "provider",
 			User:     suite.user,
@@ -179,7 +179,7 @@ func (suite *AuthProviderTestSuite) Test_GetByToken_UnknownProvider() {
 func (suite *AuthProviderTestSuite) Test_GetByToken_UnknownToken() {
 	var (
 		ctx      = context.Background()
-		provider = &user_service.AuthProvider{
+		provider = &pkg.AuthProvider{
 			Token:    "token",
 			Provider: "provider",
 			User:     suite.user,
@@ -197,7 +197,7 @@ func (suite *AuthProviderTestSuite) Test_GetByToken_UnknownToken() {
 func (suite *AuthProviderTestSuite) Test_GetByToken_MappingError() {
 	var (
 		ctx      = context.Background()
-		provider = &user_service.AuthProvider{
+		provider = &pkg.AuthProvider{
 			Token:    "token",
 			Provider: "provider",
 			User:     suite.user,

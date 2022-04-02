@@ -5,7 +5,7 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/lotproject/go-helpers/hash"
 	"github.com/lotproject/go-helpers/random"
-	"github.com/lotproject/go-proto/go/user_service"
+	"github.com/lotproject/user-service/pkg"
 	"github.com/micro/go-micro/errors"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
@@ -13,7 +13,7 @@ import (
 
 func (s *Service) VerifyPassword(
 	ctx context.Context,
-	req *user_service.VerifyPasswordRequest,
+	req *pkg.VerifyPasswordRequest,
 	_ *empty.Empty,
 ) error {
 	user, err := s.repositories.User.GetById(ctx, req.UserId)
@@ -25,7 +25,7 @@ func (s *Service) VerifyPassword(
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password))
 
 	if err != nil {
-		return errors.BadRequest(user_service.ServiceName, user_service.ErrorInvalidPassword)
+		return errors.BadRequest(pkg.ServiceName, pkg.ErrorInvalidPassword)
 	}
 
 	return nil
@@ -33,7 +33,7 @@ func (s *Service) VerifyPassword(
 
 func (s *Service) SetPassword(
 	ctx context.Context,
-	req *user_service.SetPasswordRequest,
+	req *pkg.SetPasswordRequest,
 	_ *empty.Empty,
 ) error {
 	user, err := s.repositories.User.GetById(ctx, req.UserId)
@@ -46,13 +46,13 @@ func (s *Service) SetPassword(
 
 	if err != nil {
 		s.log.Error("Unable to generate bcrypt password", zap.Error(err))
-		return errors.InternalServerError(user_service.ServiceName, user_service.ErrorInternalError)
+		return errors.InternalServerError(pkg.ServiceName, pkg.ErrorInternalError)
 	}
 
 	user.Password = string(password)
 
 	if err = s.repositories.User.Update(ctx, user); err != nil {
-		return errors.InternalServerError(user_service.ServiceName, user_service.ErrorInternalError)
+		return errors.InternalServerError(pkg.ServiceName, pkg.ErrorInternalError)
 	}
 
 	return nil
@@ -60,8 +60,8 @@ func (s *Service) SetPassword(
 
 func (s *Service) CreatePasswordRecoveryCode(
 	ctx context.Context,
-	req *user_service.CreatePasswordRecoveryCodeRequest,
-	res *user_service.CreatePasswordRecoveryCodeResponse,
+	req *pkg.CreatePasswordRecoveryCodeRequest,
+	res *pkg.CreatePasswordRecoveryCodeResponse,
 ) error {
 	user, err := s.repositories.User.GetById(ctx, req.UserId)
 
@@ -73,11 +73,11 @@ func (s *Service) CreatePasswordRecoveryCode(
 
 	if err != nil {
 		s.log.Error("Unable to create recovery code", zap.Error(err))
-		return errors.InternalServerError(user_service.ServiceName, user_service.ErrorInternalError)
+		return errors.InternalServerError(pkg.ServiceName, pkg.ErrorInternalError)
 	}
 
 	if err = s.repositories.User.Update(ctx, user); err != nil {
-		return errors.InternalServerError(user_service.ServiceName, user_service.ErrorInternalError)
+		return errors.InternalServerError(pkg.ServiceName, pkg.ErrorInternalError)
 	}
 
 	res.Code = user.RecoveryCode
@@ -87,7 +87,7 @@ func (s *Service) CreatePasswordRecoveryCode(
 
 func (s *Service) UsePasswordRecoveryCode(
 	ctx context.Context,
-	req *user_service.UsePasswordRecoveryCodeRequest,
+	req *pkg.UsePasswordRecoveryCodeRequest,
 	_ *empty.Empty,
 ) error {
 	user, err := s.repositories.User.GetById(ctx, req.UserId)
@@ -97,21 +97,21 @@ func (s *Service) UsePasswordRecoveryCode(
 	}
 
 	if user.RecoveryCode != req.Code {
-		return errors.BadRequest(user_service.ServiceName, user_service.ErrorRecoveryCodeInvalid)
+		return errors.BadRequest(pkg.ServiceName, pkg.ErrorRecoveryCodeInvalid)
 	}
 
 	password, err := bcrypt.GenerateFromPassword([]byte(req.Password), s.cfg.BcryptCost)
 
 	if err != nil {
 		s.log.Error("Unable to generate bcrypt password", zap.Error(err))
-		return errors.InternalServerError(user_service.ServiceName, user_service.ErrorInternalError)
+		return errors.InternalServerError(pkg.ServiceName, pkg.ErrorInternalError)
 	}
 
 	user.Password = string(password)
 	user.RecoveryCode = ""
 
 	if err = s.repositories.User.Update(ctx, user); err != nil {
-		return errors.InternalServerError(user_service.ServiceName, user_service.ErrorInternalError)
+		return errors.InternalServerError(pkg.ServiceName, pkg.ErrorInternalError)
 	}
 
 	return nil

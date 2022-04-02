@@ -3,8 +3,8 @@ package service
 import (
 	"database/sql"
 	"errors"
-	"github.com/lotproject/go-proto/go/user_service"
 	"github.com/lotproject/user-service/config"
+	"github.com/lotproject/user-service/pkg"
 	microErrors "github.com/micro/go-micro/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -53,49 +53,49 @@ func (suite *ServiceTestSuite) Test_Ping() {
 func (suite *ServiceTestSuite) Test_buildGetUserError_NotFound() {
 	err := microErrors.Parse(suite.service.buildGetUserError(sql.ErrNoRows).Error())
 	assert.NotEmpty(suite.T(), err)
-	assert.Equal(suite.T(), user_service.ServiceName, err.Id)
+	assert.Equal(suite.T(), pkg.ServiceName, err.Id)
 	assert.Equal(suite.T(), int32(404), err.Code)
-	assert.Equal(suite.T(), user_service.ErrorUserNotFound, err.Detail)
+	assert.Equal(suite.T(), pkg.ErrorUserNotFound, err.Detail)
 }
 
 func (suite *ServiceTestSuite) Test_buildGetUserError_InternalServerError() {
 	err := microErrors.Parse(suite.service.buildGetUserError(errors.New("error")).Error())
 	assert.NotEmpty(suite.T(), err)
-	assert.Equal(suite.T(), user_service.ServiceName, err.Id)
+	assert.Equal(suite.T(), pkg.ServiceName, err.Id)
 	assert.Equal(suite.T(), int32(500), err.Code)
-	assert.Equal(suite.T(), user_service.ErrorInternalError, err.Detail)
+	assert.Equal(suite.T(), pkg.ErrorInternalError, err.Detail)
 }
 
 func (suite *ServiceTestSuite) Test_buildGetWalletError_NotFound() {
 	err := microErrors.Parse(suite.service.buildGetWalletError(sql.ErrNoRows).Error())
 	assert.NotEmpty(suite.T(), err)
-	assert.Equal(suite.T(), user_service.ServiceName, err.Id)
+	assert.Equal(suite.T(), pkg.ServiceName, err.Id)
 	assert.Equal(suite.T(), int32(404), err.Code)
-	assert.Equal(suite.T(), user_service.ErrorWalletNotFound, err.Detail)
+	assert.Equal(suite.T(), pkg.ErrorWalletNotFound, err.Detail)
 }
 
 func (suite *ServiceTestSuite) Test_buildGetWalletError_InternalServerError() {
 	err := microErrors.Parse(suite.service.buildGetWalletError(errors.New("error")).Error())
 	assert.NotEmpty(suite.T(), err)
-	assert.Equal(suite.T(), user_service.ServiceName, err.Id)
+	assert.Equal(suite.T(), pkg.ServiceName, err.Id)
 	assert.Equal(suite.T(), int32(500), err.Code)
-	assert.Equal(suite.T(), user_service.ErrorInternalError, err.Detail)
+	assert.Equal(suite.T(), pkg.ErrorInternalError, err.Detail)
 }
 
 func (suite *ServiceTestSuite) Test_buildGetAuthLogError_NotFound() {
 	err := microErrors.Parse(suite.service.buildGetAuthLogError(sql.ErrNoRows).Error())
 	assert.NotEmpty(suite.T(), err)
-	assert.Equal(suite.T(), user_service.ServiceName, err.Id)
+	assert.Equal(suite.T(), pkg.ServiceName, err.Id)
 	assert.Equal(suite.T(), int32(404), err.Code)
-	assert.Equal(suite.T(), user_service.ErrorAuthenticationNotFound, err.Detail)
+	assert.Equal(suite.T(), pkg.ErrorAuthenticationNotFound, err.Detail)
 }
 
 func (suite *ServiceTestSuite) Test_buildGetAuthLogError_InternalServerError() {
 	err := microErrors.Parse(suite.service.buildGetAuthLogError(errors.New("error")).Error())
 	assert.NotEmpty(suite.T(), err)
-	assert.Equal(suite.T(), user_service.ServiceName, err.Id)
+	assert.Equal(suite.T(), pkg.ServiceName, err.Id)
 	assert.Equal(suite.T(), int32(500), err.Code)
-	assert.Equal(suite.T(), user_service.ErrorInternalError, err.Detail)
+	assert.Equal(suite.T(), pkg.ErrorInternalError, err.Detail)
 }
 
 func (suite *ServiceTestSuite) Test_createJwtToken_InvalidAlg() {
@@ -110,7 +110,7 @@ func (suite *ServiceTestSuite) Test_createJwtToken() {
 
 func (suite *ServiceTestSuite) Test_convertUserToProfile() {
 	var (
-		user = &user_service.User{
+		user = &pkg.User{
 			Id:             "user_id",
 			Login:          "login",
 			Username:       "username",

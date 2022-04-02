@@ -5,7 +5,6 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/golang/protobuf/ptypes/empty"
 	dbHelper "github.com/lotproject/go-helpers/db"
-	"github.com/lotproject/go-proto/go/user_service"
 	"github.com/lotproject/user-service/config"
 	"github.com/lotproject/user-service/internal/repository"
 	"github.com/lotproject/user-service/pkg"
@@ -40,8 +39,8 @@ func (s *Service) Ping(
 	return nil
 }
 
-func (s *Service) convertUserToProfile(user *user_service.User) *user_service.UserProfile {
-	return &user_service.UserProfile{
+func (s *Service) convertUserToProfile(user *pkg.User) *pkg.UserProfile {
+	return &pkg.UserProfile{
 		Id:             user.Id,
 		Login:          user.Login,
 		Username:       user.Username,
@@ -52,26 +51,26 @@ func (s *Service) convertUserToProfile(user *user_service.User) *user_service.Us
 
 func (s *Service) buildGetUserError(err error) error {
 	if dbHelper.IsNotFound(err) {
-		return errors.NotFound(user_service.ServiceName, user_service.ErrorUserNotFound)
+		return errors.NotFound(pkg.ServiceName, pkg.ErrorUserNotFound)
 	}
 
-	return errors.InternalServerError(user_service.ServiceName, user_service.ErrorInternalError)
+	return errors.InternalServerError(pkg.ServiceName, pkg.ErrorInternalError)
 }
 
 func (s *Service) buildGetWalletError(err error) error {
 	if dbHelper.IsNotFound(err) {
-		return errors.NotFound(user_service.ServiceName, user_service.ErrorWalletNotFound)
+		return errors.NotFound(pkg.ServiceName, pkg.ErrorWalletNotFound)
 	}
 
-	return errors.InternalServerError(user_service.ServiceName, user_service.ErrorInternalError)
+	return errors.InternalServerError(pkg.ServiceName, pkg.ErrorInternalError)
 }
 
 func (s *Service) buildGetAuthLogError(err error) error {
 	if dbHelper.IsNotFound(err) {
-		return errors.NotFound(user_service.ServiceName, user_service.ErrorAuthenticationNotFound)
+		return errors.NotFound(pkg.ServiceName, pkg.ErrorAuthenticationNotFound)
 	}
 
-	return errors.InternalServerError(user_service.ServiceName, user_service.ErrorInternalError)
+	return errors.InternalServerError(pkg.ServiceName, pkg.ErrorInternalError)
 }
 
 func createJwtToken(userId string, lifeTime int, signingMethod, secret string) (string, error) {

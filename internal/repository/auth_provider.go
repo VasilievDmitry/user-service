@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	dbHelper "github.com/lotproject/go-helpers/db"
-	"github.com/lotproject/go-proto/go/user_service"
 	"github.com/lotproject/user-service/internal/repository/models"
+	"github.com/lotproject/user-service/pkg"
 	"go.uber.org/zap"
 )
 
@@ -16,13 +16,13 @@ type authProviderRepository dbRepository
 // AuthProviderRepositoryInterface is abstraction layer for working with providers of users and its representation in database.
 type AuthProviderRepositoryInterface interface {
 	// Insert adds the user provider to the collection.
-	Insert(ctx context.Context, provider *user_service.AuthProvider) error
+	Insert(ctx context.Context, provider *pkg.AuthProvider) error
 
 	// Update updates the user provider to the collection.
-	Update(ctx context.Context, provider *user_service.AuthProvider) error
+	Update(ctx context.Context, provider *pkg.AuthProvider) error
 
 	// GetByToken returns the user provider by token.
-	GetByToken(ctx context.Context, provider, token string) (*user_service.AuthProvider, error)
+	GetByToken(ctx context.Context, provider, token string) (*pkg.AuthProvider, error)
 }
 
 // NewAuthProviderRepository create and return an object for working with the providers of user repository.
@@ -36,7 +36,7 @@ func NewAuthProviderRepository(db *sqlx.DB, logger *zap.Logger) AuthProviderRepo
 	return s
 }
 
-func (r *authProviderRepository) Insert(ctx context.Context, provider *user_service.AuthProvider) error {
+func (r *authProviderRepository) Insert(ctx context.Context, provider *pkg.AuthProvider) error {
 	model, err := r.mapper.MapProtoToModel(provider)
 
 	if err != nil {
@@ -92,7 +92,7 @@ func (r *authProviderRepository) Insert(ctx context.Context, provider *user_serv
 	return nil
 }
 
-func (r *authProviderRepository) Update(ctx context.Context, provider *user_service.AuthProvider) error {
+func (r *authProviderRepository) Update(ctx context.Context, provider *pkg.AuthProvider) error {
 	model, err := r.mapper.MapProtoToModel(provider)
 
 	if err != nil {
@@ -130,7 +130,7 @@ func (r *authProviderRepository) Update(ctx context.Context, provider *user_serv
 	return nil
 }
 
-func (r *authProviderRepository) GetByToken(ctx context.Context, provider, token string) (*user_service.AuthProvider, error) {
+func (r *authProviderRepository) GetByToken(ctx context.Context, provider, token string) (*pkg.AuthProvider, error) {
 	var (
 		model = models.AuthProvider{}
 		query = fmt.Sprintf(r.getMainSelectQuery(), "WHERE provider=? AND token=?")
@@ -160,7 +160,7 @@ func (r *authProviderRepository) GetByToken(ctx context.Context, provider, token
 		return nil, err
 	}
 
-	return obj.(*user_service.AuthProvider), nil
+	return obj.(*pkg.AuthProvider), nil
 }
 
 func (r *authProviderRepository) getMainSelectQuery() string {

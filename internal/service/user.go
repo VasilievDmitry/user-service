@@ -5,15 +5,15 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 	dbHelper "github.com/lotproject/go-helpers/db"
 	"github.com/lotproject/go-helpers/random"
-	"github.com/lotproject/go-proto/go/user_service"
+	"github.com/lotproject/user-service/pkg"
 	"github.com/micro/go-micro/errors"
 	"strconv"
 )
 
 func (s *Service) GetUserById(
 	ctx context.Context,
-	req *user_service.GetUserByIdRequest,
-	res *user_service.ResponseWithUserProfile,
+	req *pkg.GetUserByIdRequest,
+	res *pkg.ResponseWithUserProfile,
 ) error {
 	user, err := s.repositories.User.GetById(ctx, req.UserId)
 
@@ -28,8 +28,8 @@ func (s *Service) GetUserById(
 
 func (s *Service) GetUserByLogin(
 	ctx context.Context,
-	req *user_service.GetUserByLoginRequest,
-	res *user_service.ResponseWithUserProfile,
+	req *pkg.GetUserByLoginRequest,
+	res *pkg.ResponseWithUserProfile,
 ) error {
 	user, err := s.repositories.User.GetByLogin(ctx, req.Login)
 
@@ -44,8 +44,8 @@ func (s *Service) GetUserByLogin(
 
 func (s *Service) GetUserByAccessToken(
 	ctx context.Context,
-	req *user_service.GetUserByAccessTokenRequest,
-	res *user_service.ResponseWithUserProfile,
+	req *pkg.GetUserByAccessTokenRequest,
+	res *pkg.ResponseWithUserProfile,
 ) error {
 	authLog, err := s.repositories.AuthLog.GetByAccessToken(ctx, req.AccessToken)
 
@@ -66,7 +66,7 @@ func (s *Service) GetUserByAccessToken(
 
 func (s *Service) SetUsername(
 	ctx context.Context,
-	req *user_service.SetUsernameRequest,
+	req *pkg.SetUsernameRequest,
 	_ *empty.Empty,
 ) error {
 	user, err := s.repositories.User.GetById(ctx, req.UserId)
@@ -78,7 +78,7 @@ func (s *Service) SetUsername(
 	user.Username = req.Username
 
 	if err = s.repositories.User.Update(ctx, user); err != nil {
-		return errors.InternalServerError(user_service.ServiceName, user_service.ErrorInternalError)
+		return errors.InternalServerError(pkg.ServiceName, pkg.ErrorInternalError)
 	}
 
 	return nil
@@ -86,8 +86,8 @@ func (s *Service) SetUsername(
 
 func (s *Service) SetLogin(
 	ctx context.Context,
-	req *user_service.SetLoginRequest,
-	res *user_service.SetLoginResponse,
+	req *pkg.SetLoginRequest,
+	res *pkg.SetLoginResponse,
 ) error {
 	user, err := s.repositories.User.GetById(ctx, req.UserId)
 
@@ -96,7 +96,7 @@ func (s *Service) SetLogin(
 	}
 
 	if user.EmailConfirmed {
-		return errors.BadRequest(user_service.ServiceName, user_service.ErrorLoginAlreadyConfirmed)
+		return errors.BadRequest(pkg.ServiceName, pkg.ErrorLoginAlreadyConfirmed)
 	}
 
 	user.Login = req.Login
@@ -104,10 +104,10 @@ func (s *Service) SetLogin(
 
 	if err = s.repositories.User.Update(ctx, user); err != nil {
 		if dbHelper.IsDuplicateEntry(err) {
-			return errors.Conflict(user_service.ServiceName, user_service.ErrorLoginAlreadyExists)
+			return errors.Conflict(pkg.ServiceName, pkg.ErrorLoginAlreadyExists)
 		}
 
-		return errors.InternalServerError(user_service.ServiceName, user_service.ErrorInternalError)
+		return errors.InternalServerError(pkg.ServiceName, pkg.ErrorInternalError)
 	}
 
 	res.Code = user.EmailCode
@@ -117,7 +117,7 @@ func (s *Service) SetLogin(
 
 func (s *Service) ConfirmLogin(
 	ctx context.Context,
-	req *user_service.ConfirmLoginRequest,
+	req *pkg.ConfirmLoginRequest,
 	_ *empty.Empty,
 ) error {
 	user, err := s.repositories.User.GetById(ctx, req.UserId)
@@ -127,18 +127,18 @@ func (s *Service) ConfirmLogin(
 	}
 
 	if user.EmailConfirmed {
-		return errors.BadRequest(user_service.ServiceName, user_service.ErrorLoginAlreadyConfirmed)
+		return errors.BadRequest(pkg.ServiceName, pkg.ErrorLoginAlreadyConfirmed)
 	}
 
 	if user.EmailCode != req.Code {
-		return errors.BadRequest(user_service.ServiceName, user_service.ErrorRecoveryCodeInvalid)
+		return errors.BadRequest(pkg.ServiceName, pkg.ErrorRecoveryCodeInvalid)
 	}
 
 	user.EmailCode = ""
 	user.EmailConfirmed = true
 
 	if err = s.repositories.User.Update(ctx, user); err != nil {
-		return errors.InternalServerError(user_service.ServiceName, user_service.ErrorInternalError)
+		return errors.InternalServerError(pkg.ServiceName, pkg.ErrorInternalError)
 	}
 
 	return nil

@@ -4,10 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"github.com/lotproject/go-proto/go/user_service"
 	"github.com/lotproject/user-service/config"
 	"github.com/lotproject/user-service/internal/repository"
 	"github.com/lotproject/user-service/internal/repository/mocks"
+	"github.com/lotproject/user-service/pkg"
 	microErrors "github.com/micro/go-micro/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -47,10 +47,10 @@ func (suite *WalletTestSuite) TearDownTest() {
 func (suite *WalletTestSuite) Test_CreateUserByWallet_UnsupportedWalletType() {
 	var (
 		ctx = context.Background()
-		req = &user_service.CreateUserByWalletRequest{
+		req = &pkg.CreateUserByWalletRequest{
 			Provider: "unknown",
 		}
-		res = &user_service.ResponseWithUserProfile{}
+		res = &pkg.ResponseWithUserProfile{}
 	)
 
 	err := suite.service.CreateUserByWallet(ctx, req, res)
@@ -58,19 +58,19 @@ func (suite *WalletTestSuite) Test_CreateUserByWallet_UnsupportedWalletType() {
 
 	mErr := microErrors.Parse(err.Error())
 	assert.NotEmpty(suite.T(), mErr)
-	assert.Equal(suite.T(), user_service.ServiceName, mErr.Id)
+	assert.Equal(suite.T(), pkg.ServiceName, mErr.Id)
 	assert.Equal(suite.T(), int32(400), mErr.Code)
-	assert.Equal(suite.T(), user_service.ErrorWalletUnsupportedType, mErr.Detail)
+	assert.Equal(suite.T(), pkg.ErrorWalletUnsupportedType, mErr.Detail)
 }
 
 func (suite *WalletTestSuite) Test_CreateUserByWallet_GetByTokenDbError() {
 	var (
 		ctx = context.Background()
-		req = &user_service.CreateUserByWalletRequest{
-			Provider: user_service.WalletTypePhantom,
+		req = &pkg.CreateUserByWalletRequest{
+			Provider: pkg.WalletTypePhantom,
 			Token:    "token",
 		}
-		res = &user_service.ResponseWithUserProfile{}
+		res = &pkg.ResponseWithUserProfile{}
 	)
 
 	authProviderRep := &mocks.AuthProviderRepositoryInterface{}
@@ -82,20 +82,20 @@ func (suite *WalletTestSuite) Test_CreateUserByWallet_GetByTokenDbError() {
 
 	mErr := microErrors.Parse(err.Error())
 	assert.NotEmpty(suite.T(), mErr)
-	assert.Equal(suite.T(), user_service.ServiceName, mErr.Id)
+	assert.Equal(suite.T(), pkg.ServiceName, mErr.Id)
 	assert.Equal(suite.T(), int32(500), mErr.Code)
-	assert.Equal(suite.T(), user_service.ErrorInternalError, mErr.Detail)
+	assert.Equal(suite.T(), pkg.ErrorInternalError, mErr.Detail)
 }
 
 func (suite *WalletTestSuite) Test_CreateUserByWallet_InsertUserDbError() {
 	var (
 		ctx = context.Background()
-		req = &user_service.CreateUserByWalletRequest{
-			Provider: user_service.WalletTypePhantom,
+		req = &pkg.CreateUserByWalletRequest{
+			Provider: pkg.WalletTypePhantom,
 			Token:    "token",
 		}
-		res  = &user_service.ResponseWithUserProfile{}
-		user = &user_service.User{
+		res  = &pkg.ResponseWithUserProfile{}
+		user = &pkg.User{
 			IsActive: true,
 		}
 	)
@@ -113,20 +113,20 @@ func (suite *WalletTestSuite) Test_CreateUserByWallet_InsertUserDbError() {
 
 	mErr := microErrors.Parse(err.Error())
 	assert.NotEmpty(suite.T(), mErr)
-	assert.Equal(suite.T(), user_service.ServiceName, mErr.Id)
+	assert.Equal(suite.T(), pkg.ServiceName, mErr.Id)
 	assert.Equal(suite.T(), int32(500), mErr.Code)
-	assert.Equal(suite.T(), user_service.ErrorInternalError, mErr.Detail)
+	assert.Equal(suite.T(), pkg.ErrorInternalError, mErr.Detail)
 }
 
 func (suite *WalletTestSuite) Test_CreateUserByWallet_InsertAuthProviderDbError() {
 	var (
 		ctx = context.Background()
-		req = &user_service.CreateUserByWalletRequest{
-			Provider: user_service.WalletTypePhantom,
+		req = &pkg.CreateUserByWalletRequest{
+			Provider: pkg.WalletTypePhantom,
 			Token:    "token",
 		}
-		res  = &user_service.ResponseWithUserProfile{}
-		user = &user_service.User{
+		res  = &pkg.ResponseWithUserProfile{}
+		user = &pkg.User{
 			Id:       "user_id",
 			IsActive: true,
 		}
@@ -134,13 +134,13 @@ func (suite *WalletTestSuite) Test_CreateUserByWallet_InsertAuthProviderDbError(
 
 	authProviderRep := &mocks.AuthProviderRepositoryInterface{}
 	authProviderRep.On("GetByToken", ctx, req.Provider, req.Token).Return(nil, sql.ErrNoRows)
-	authProviderRep.On("Insert", ctx, mock.MatchedBy(func(input *user_service.AuthProvider) bool {
+	authProviderRep.On("Insert", ctx, mock.MatchedBy(func(input *pkg.AuthProvider) bool {
 		return input.User != nil && input.User.Id == user.Id && input.Provider == req.Provider && input.Token == req.Token
 	})).Return(errors.New("db_error"))
 	suite.service.repositories.AuthProvider = authProviderRep
 
 	userRep := &mocks.UserRepositoryInterface{}
-	userRep.On("Insert", ctx, mock.MatchedBy(func(input *user_service.User) bool {
+	userRep.On("Insert", ctx, mock.MatchedBy(func(input *pkg.User) bool {
 		if input.Id == "" && input.IsActive == true {
 			input.Id = user.Id
 			return true
@@ -154,20 +154,20 @@ func (suite *WalletTestSuite) Test_CreateUserByWallet_InsertAuthProviderDbError(
 
 	mErr := microErrors.Parse(err.Error())
 	assert.NotEmpty(suite.T(), mErr)
-	assert.Equal(suite.T(), user_service.ServiceName, mErr.Id)
+	assert.Equal(suite.T(), pkg.ServiceName, mErr.Id)
 	assert.Equal(suite.T(), int32(500), mErr.Code)
-	assert.Equal(suite.T(), user_service.ErrorInternalError, mErr.Detail)
+	assert.Equal(suite.T(), pkg.ErrorInternalError, mErr.Detail)
 }
 
 func (suite *WalletTestSuite) Test_CreateUserByWallet_NewUser() {
 	var (
 		ctx = context.Background()
-		req = &user_service.CreateUserByWalletRequest{
-			Provider: user_service.WalletTypePhantom,
+		req = &pkg.CreateUserByWalletRequest{
+			Provider: pkg.WalletTypePhantom,
 			Token:    "token",
 		}
-		res  = &user_service.ResponseWithUserProfile{}
-		user = &user_service.User{
+		res  = &pkg.ResponseWithUserProfile{}
+		user = &pkg.User{
 			Id:       "user_id",
 			IsActive: true,
 		}
@@ -176,13 +176,13 @@ func (suite *WalletTestSuite) Test_CreateUserByWallet_NewUser() {
 
 	authProviderRep := &mocks.AuthProviderRepositoryInterface{}
 	authProviderRep.On("GetByToken", ctx, req.Provider, req.Token).Return(nil, sql.ErrNoRows)
-	authProviderRep.On("Insert", ctx, mock.MatchedBy(func(input *user_service.AuthProvider) bool {
+	authProviderRep.On("Insert", ctx, mock.MatchedBy(func(input *pkg.AuthProvider) bool {
 		return input.User != nil && input.User.Id == user.Id && input.Provider == req.Provider && input.Token == req.Token
 	})).Return(nil)
 	suite.service.repositories.AuthProvider = authProviderRep
 
 	userRep := &mocks.UserRepositoryInterface{}
-	userRep.On("Insert", ctx, mock.MatchedBy(func(input *user_service.User) bool {
+	userRep.On("Insert", ctx, mock.MatchedBy(func(input *pkg.User) bool {
 		if input.Id == "" && input.IsActive == true {
 			input.Id = user.Id
 			return true
@@ -199,16 +199,16 @@ func (suite *WalletTestSuite) Test_CreateUserByWallet_NewUser() {
 func (suite *WalletTestSuite) Test_CreateUserByWallet_ExistsUser() {
 	var (
 		ctx = context.Background()
-		req = &user_service.CreateUserByWalletRequest{
-			Provider: user_service.WalletTypePhantom,
+		req = &pkg.CreateUserByWalletRequest{
+			Provider: pkg.WalletTypePhantom,
 			Token:    "token",
 		}
-		res  = &user_service.ResponseWithUserProfile{}
-		user = &user_service.User{
+		res  = &pkg.ResponseWithUserProfile{}
+		user = &pkg.User{
 			Id:       "user_id",
 			IsActive: true,
 		}
-		authProvider = &user_service.AuthProvider{
+		authProvider = &pkg.AuthProvider{
 			User:     user,
 			Provider: req.Provider,
 			Token:    req.Token,

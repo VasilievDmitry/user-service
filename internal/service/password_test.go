@@ -4,10 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"github.com/lotproject/go-proto/go/user_service"
 	"github.com/lotproject/user-service/config"
 	"github.com/lotproject/user-service/internal/repository"
 	"github.com/lotproject/user-service/internal/repository/mocks"
+	"github.com/lotproject/user-service/pkg"
 	microErrors "github.com/micro/go-micro/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -49,7 +49,7 @@ func (suite *PasswordTestSuite) TearDownTest() {
 func (suite *PasswordTestSuite) Test_VerifyPassword_GetUserDbError() {
 	var (
 		ctx = context.Background()
-		req = &user_service.VerifyPasswordRequest{
+		req = &pkg.VerifyPasswordRequest{
 			UserId:   "user_id",
 			Password: "password",
 		}
@@ -64,19 +64,19 @@ func (suite *PasswordTestSuite) Test_VerifyPassword_GetUserDbError() {
 
 	mErr := microErrors.Parse(err.Error())
 	assert.NotEmpty(suite.T(), mErr)
-	assert.Equal(suite.T(), user_service.ServiceName, mErr.Id)
+	assert.Equal(suite.T(), pkg.ServiceName, mErr.Id)
 	assert.Equal(suite.T(), int32(404), mErr.Code)
-	assert.Equal(suite.T(), user_service.ErrorUserNotFound, mErr.Detail)
+	assert.Equal(suite.T(), pkg.ErrorUserNotFound, mErr.Detail)
 }
 
 func (suite *PasswordTestSuite) Test_VerifyPassword_CompareError() {
 	var (
 		ctx = context.Background()
-		req = &user_service.VerifyPasswordRequest{
+		req = &pkg.VerifyPasswordRequest{
 			UserId:   "user_id",
 			Password: "password",
 		}
-		user = &user_service.User{
+		user = &pkg.User{
 			Id:       "user_id",
 			Password: "password",
 		}
@@ -91,20 +91,20 @@ func (suite *PasswordTestSuite) Test_VerifyPassword_CompareError() {
 
 	mErr := microErrors.Parse(err.Error())
 	assert.NotEmpty(suite.T(), mErr)
-	assert.Equal(suite.T(), user_service.ServiceName, mErr.Id)
+	assert.Equal(suite.T(), pkg.ServiceName, mErr.Id)
 	assert.Equal(suite.T(), int32(400), mErr.Code)
-	assert.Equal(suite.T(), user_service.ErrorInvalidPassword, mErr.Detail)
+	assert.Equal(suite.T(), pkg.ErrorInvalidPassword, mErr.Detail)
 }
 
 func (suite *PasswordTestSuite) Test_VerifyPassword_CompareSuccess() {
 	var (
 		ctx = context.Background()
-		req = &user_service.VerifyPasswordRequest{
+		req = &pkg.VerifyPasswordRequest{
 			UserId:   "user_id",
 			Password: "password",
 		}
 		password, _ = bcrypt.GenerateFromPassword([]byte(req.Password), suite.cfg.BcryptCost)
-		user        = &user_service.User{
+		user        = &pkg.User{
 			Id:       "user_id",
 			Password: string(password),
 		}
@@ -121,7 +121,7 @@ func (suite *PasswordTestSuite) Test_VerifyPassword_CompareSuccess() {
 func (suite *PasswordTestSuite) Test_SetPassword_GetUserDbError() {
 	var (
 		ctx = context.Background()
-		req = &user_service.SetPasswordRequest{
+		req = &pkg.SetPasswordRequest{
 			UserId:   "user_id",
 			Password: "password",
 		}
@@ -136,18 +136,18 @@ func (suite *PasswordTestSuite) Test_SetPassword_GetUserDbError() {
 
 	mErr := microErrors.Parse(err.Error())
 	assert.NotEmpty(suite.T(), mErr)
-	assert.Equal(suite.T(), user_service.ServiceName, mErr.Id)
+	assert.Equal(suite.T(), pkg.ServiceName, mErr.Id)
 	assert.Equal(suite.T(), int32(404), mErr.Code)
-	assert.Equal(suite.T(), user_service.ErrorUserNotFound, mErr.Detail)
+	assert.Equal(suite.T(), pkg.ErrorUserNotFound, mErr.Detail)
 }
 
 func (suite *PasswordTestSuite) Test_SetPassword_GenerateFromPasswordError() {
 	var (
 		ctx = context.Background()
-		req = &user_service.SetPasswordRequest{
+		req = &pkg.SetPasswordRequest{
 			UserId: "user_id",
 		}
-		user = &user_service.User{
+		user = &pkg.User{
 			Id: req.UserId,
 		}
 	)
@@ -163,25 +163,25 @@ func (suite *PasswordTestSuite) Test_SetPassword_GenerateFromPasswordError() {
 
 	mErr := microErrors.Parse(err.Error())
 	assert.NotEmpty(suite.T(), mErr)
-	assert.Equal(suite.T(), user_service.ServiceName, mErr.Id)
+	assert.Equal(suite.T(), pkg.ServiceName, mErr.Id)
 	assert.Equal(suite.T(), int32(500), mErr.Code)
-	assert.Equal(suite.T(), user_service.ErrorInternalError, mErr.Detail)
+	assert.Equal(suite.T(), pkg.ErrorInternalError, mErr.Detail)
 }
 
 func (suite *PasswordTestSuite) Test_SetPassword_UpdateUserDbError() {
 	var (
 		ctx = context.Background()
-		req = &user_service.SetPasswordRequest{
+		req = &pkg.SetPasswordRequest{
 			UserId: "user_id",
 		}
-		user = &user_service.User{
+		user = &pkg.User{
 			Id: req.UserId,
 		}
 	)
 
 	userRep := &mocks.UserRepositoryInterface{}
 	userRep.On("GetById", ctx, req.UserId).Return(user, nil)
-	userRep.On("Update", ctx, mock.MatchedBy(func(input *user_service.User) bool {
+	userRep.On("Update", ctx, mock.MatchedBy(func(input *pkg.User) bool {
 		return input.Id == req.UserId && input.Password != ""
 	})).Return(errors.New("db_error"))
 	suite.service.repositories.User = userRep
@@ -191,25 +191,25 @@ func (suite *PasswordTestSuite) Test_SetPassword_UpdateUserDbError() {
 
 	mErr := microErrors.Parse(err.Error())
 	assert.NotEmpty(suite.T(), mErr)
-	assert.Equal(suite.T(), user_service.ServiceName, mErr.Id)
+	assert.Equal(suite.T(), pkg.ServiceName, mErr.Id)
 	assert.Equal(suite.T(), int32(500), mErr.Code)
-	assert.Equal(suite.T(), user_service.ErrorInternalError, mErr.Detail)
+	assert.Equal(suite.T(), pkg.ErrorInternalError, mErr.Detail)
 }
 
 func (suite *PasswordTestSuite) Test_SetPassword_Success() {
 	var (
 		ctx = context.Background()
-		req = &user_service.SetPasswordRequest{
+		req = &pkg.SetPasswordRequest{
 			UserId: "user_id",
 		}
-		user = &user_service.User{
+		user = &pkg.User{
 			Id: req.UserId,
 		}
 	)
 
 	userRep := &mocks.UserRepositoryInterface{}
 	userRep.On("GetById", ctx, req.UserId).Return(user, nil)
-	userRep.On("Update", ctx, mock.MatchedBy(func(input *user_service.User) bool {
+	userRep.On("Update", ctx, mock.MatchedBy(func(input *pkg.User) bool {
 		return input.Id == req.UserId && input.Password != ""
 	})).Return(nil)
 	suite.service.repositories.User = userRep
@@ -221,7 +221,7 @@ func (suite *PasswordTestSuite) Test_SetPassword_Success() {
 func (suite *PasswordTestSuite) Test_CreatePasswordRecoveryCode_GetUserDbError() {
 	var (
 		ctx = context.Background()
-		req = &user_service.CreatePasswordRecoveryCodeRequest{
+		req = &pkg.CreatePasswordRecoveryCodeRequest{
 			UserId: "user_id",
 		}
 	)
@@ -235,25 +235,25 @@ func (suite *PasswordTestSuite) Test_CreatePasswordRecoveryCode_GetUserDbError()
 
 	mErr := microErrors.Parse(err.Error())
 	assert.NotEmpty(suite.T(), mErr)
-	assert.Equal(suite.T(), user_service.ServiceName, mErr.Id)
+	assert.Equal(suite.T(), pkg.ServiceName, mErr.Id)
 	assert.Equal(suite.T(), int32(404), mErr.Code)
-	assert.Equal(suite.T(), user_service.ErrorUserNotFound, mErr.Detail)
+	assert.Equal(suite.T(), pkg.ErrorUserNotFound, mErr.Detail)
 }
 
 func (suite *PasswordTestSuite) Test_CreatePasswordRecoveryCode_UpdateUserDbError() {
 	var (
 		ctx = context.Background()
-		req = &user_service.CreatePasswordRecoveryCodeRequest{
+		req = &pkg.CreatePasswordRecoveryCodeRequest{
 			UserId: "user_id",
 		}
-		user = &user_service.User{
+		user = &pkg.User{
 			Id: req.UserId,
 		}
 	)
 
 	userRep := &mocks.UserRepositoryInterface{}
 	userRep.On("GetById", ctx, req.UserId).Return(user, nil)
-	userRep.On("Update", ctx, mock.MatchedBy(func(input *user_service.User) bool {
+	userRep.On("Update", ctx, mock.MatchedBy(func(input *pkg.User) bool {
 		return input.Id == req.UserId && input.RecoveryCode != ""
 	})).Return(errors.New("db_error"))
 	suite.service.repositories.User = userRep
@@ -263,26 +263,26 @@ func (suite *PasswordTestSuite) Test_CreatePasswordRecoveryCode_UpdateUserDbErro
 
 	mErr := microErrors.Parse(err.Error())
 	assert.NotEmpty(suite.T(), mErr)
-	assert.Equal(suite.T(), user_service.ServiceName, mErr.Id)
+	assert.Equal(suite.T(), pkg.ServiceName, mErr.Id)
 	assert.Equal(suite.T(), int32(500), mErr.Code)
-	assert.Equal(suite.T(), user_service.ErrorInternalError, mErr.Detail)
+	assert.Equal(suite.T(), pkg.ErrorInternalError, mErr.Detail)
 }
 
 func (suite *PasswordTestSuite) Test_CreatePasswordRecoveryCode_Success() {
 	var (
 		ctx = context.Background()
-		req = &user_service.CreatePasswordRecoveryCodeRequest{
+		req = &pkg.CreatePasswordRecoveryCodeRequest{
 			UserId: "user_id",
 		}
-		user = &user_service.User{
+		user = &pkg.User{
 			Id: req.UserId,
 		}
-		res = &user_service.CreatePasswordRecoveryCodeResponse{}
+		res = &pkg.CreatePasswordRecoveryCodeResponse{}
 	)
 
 	userRep := &mocks.UserRepositoryInterface{}
 	userRep.On("GetById", ctx, req.UserId).Return(user, nil)
-	userRep.On("Update", ctx, mock.MatchedBy(func(input *user_service.User) bool {
+	userRep.On("Update", ctx, mock.MatchedBy(func(input *pkg.User) bool {
 		return input.Id == req.UserId && input.RecoveryCode != ""
 	})).Return(nil)
 	suite.service.repositories.User = userRep
@@ -296,7 +296,7 @@ func (suite *PasswordTestSuite) Test_CreatePasswordRecoveryCode_Success() {
 func (suite *PasswordTestSuite) Test_UsePasswordRecoveryCode_GetUserDbError() {
 	var (
 		ctx = context.Background()
-		req = &user_service.UsePasswordRecoveryCodeRequest{
+		req = &pkg.UsePasswordRecoveryCodeRequest{
 			UserId: "user_id",
 		}
 	)
@@ -310,19 +310,19 @@ func (suite *PasswordTestSuite) Test_UsePasswordRecoveryCode_GetUserDbError() {
 
 	mErr := microErrors.Parse(err.Error())
 	assert.NotEmpty(suite.T(), mErr)
-	assert.Equal(suite.T(), user_service.ServiceName, mErr.Id)
+	assert.Equal(suite.T(), pkg.ServiceName, mErr.Id)
 	assert.Equal(suite.T(), int32(404), mErr.Code)
-	assert.Equal(suite.T(), user_service.ErrorUserNotFound, mErr.Detail)
+	assert.Equal(suite.T(), pkg.ErrorUserNotFound, mErr.Detail)
 }
 
 func (suite *PasswordTestSuite) Test_UsePasswordRecoveryCode_InvalidRecoveryCode() {
 	var (
 		ctx = context.Background()
-		req = &user_service.UsePasswordRecoveryCodeRequest{
+		req = &pkg.UsePasswordRecoveryCodeRequest{
 			UserId: "user_id",
 			Code:   "code",
 		}
-		user = &user_service.User{
+		user = &pkg.User{
 			Id:           req.UserId,
 			RecoveryCode: "recovery_code",
 		}
@@ -337,19 +337,19 @@ func (suite *PasswordTestSuite) Test_UsePasswordRecoveryCode_InvalidRecoveryCode
 
 	mErr := microErrors.Parse(err.Error())
 	assert.NotEmpty(suite.T(), mErr)
-	assert.Equal(suite.T(), user_service.ServiceName, mErr.Id)
+	assert.Equal(suite.T(), pkg.ServiceName, mErr.Id)
 	assert.Equal(suite.T(), int32(400), mErr.Code)
-	assert.Equal(suite.T(), user_service.ErrorRecoveryCodeInvalid, mErr.Detail)
+	assert.Equal(suite.T(), pkg.ErrorRecoveryCodeInvalid, mErr.Detail)
 }
 
 func (suite *PasswordTestSuite) Test_UsePasswordRecoveryCode_GenerateFromPasswordError() {
 	var (
 		ctx = context.Background()
-		req = &user_service.UsePasswordRecoveryCodeRequest{
+		req = &pkg.UsePasswordRecoveryCodeRequest{
 			UserId: "user_id",
 			Code:   "code",
 		}
-		user = &user_service.User{
+		user = &pkg.User{
 			Id:           req.UserId,
 			RecoveryCode: "code",
 		}
@@ -366,19 +366,19 @@ func (suite *PasswordTestSuite) Test_UsePasswordRecoveryCode_GenerateFromPasswor
 
 	mErr := microErrors.Parse(err.Error())
 	assert.NotEmpty(suite.T(), mErr)
-	assert.Equal(suite.T(), user_service.ServiceName, mErr.Id)
+	assert.Equal(suite.T(), pkg.ServiceName, mErr.Id)
 	assert.Equal(suite.T(), int32(500), mErr.Code)
-	assert.Equal(suite.T(), user_service.ErrorInternalError, mErr.Detail)
+	assert.Equal(suite.T(), pkg.ErrorInternalError, mErr.Detail)
 }
 
 func (suite *PasswordTestSuite) Test_UsePasswordRecoveryCode_UpdateUserDbError() {
 	var (
 		ctx = context.Background()
-		req = &user_service.UsePasswordRecoveryCodeRequest{
+		req = &pkg.UsePasswordRecoveryCodeRequest{
 			UserId: "user_id",
 			Code:   "code",
 		}
-		user = &user_service.User{
+		user = &pkg.User{
 			Id:           req.UserId,
 			RecoveryCode: "code",
 		}
@@ -386,7 +386,7 @@ func (suite *PasswordTestSuite) Test_UsePasswordRecoveryCode_UpdateUserDbError()
 
 	userRep := &mocks.UserRepositoryInterface{}
 	userRep.On("GetById", ctx, req.UserId).Return(user, nil)
-	userRep.On("Update", ctx, mock.MatchedBy(func(input *user_service.User) bool {
+	userRep.On("Update", ctx, mock.MatchedBy(func(input *pkg.User) bool {
 		return input.Id == req.UserId && input.RecoveryCode == "" && input.Password != ""
 	})).Return(errors.New("db_error"))
 	suite.service.repositories.User = userRep
@@ -396,19 +396,19 @@ func (suite *PasswordTestSuite) Test_UsePasswordRecoveryCode_UpdateUserDbError()
 
 	mErr := microErrors.Parse(err.Error())
 	assert.NotEmpty(suite.T(), mErr)
-	assert.Equal(suite.T(), user_service.ServiceName, mErr.Id)
+	assert.Equal(suite.T(), pkg.ServiceName, mErr.Id)
 	assert.Equal(suite.T(), int32(500), mErr.Code)
-	assert.Equal(suite.T(), user_service.ErrorInternalError, mErr.Detail)
+	assert.Equal(suite.T(), pkg.ErrorInternalError, mErr.Detail)
 }
 
 func (suite *PasswordTestSuite) Test_UsePasswordRecoveryCode_Success() {
 	var (
 		ctx = context.Background()
-		req = &user_service.UsePasswordRecoveryCodeRequest{
+		req = &pkg.UsePasswordRecoveryCodeRequest{
 			UserId: "user_id",
 			Code:   "code",
 		}
-		user = &user_service.User{
+		user = &pkg.User{
 			Id:           req.UserId,
 			RecoveryCode: "code",
 		}
@@ -416,7 +416,7 @@ func (suite *PasswordTestSuite) Test_UsePasswordRecoveryCode_Success() {
 
 	userRep := &mocks.UserRepositoryInterface{}
 	userRep.On("GetById", ctx, req.UserId).Return(user, nil)
-	userRep.On("Update", ctx, mock.MatchedBy(func(input *user_service.User) bool {
+	userRep.On("Update", ctx, mock.MatchedBy(func(input *pkg.User) bool {
 		return input.Id == req.UserId && input.RecoveryCode == "" && input.Password != ""
 	})).Return(nil)
 	suite.service.repositories.User = userRep

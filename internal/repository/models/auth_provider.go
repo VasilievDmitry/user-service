@@ -3,7 +3,7 @@ package models
 import (
 	"database/sql"
 	"errors"
-	"github.com/lotproject/go-proto/go/user_service"
+	"github.com/lotproject/user-service/pkg"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"time"
 )
@@ -25,7 +25,7 @@ type AuthProvider struct {
 }
 
 func (m *authProviderMapper) MapProtoToModel(obj interface{}) (interface{}, error) {
-	in := obj.(*user_service.AuthProvider)
+	in := obj.(*pkg.AuthProvider)
 	out := &AuthProvider{
 		UserId:    in.User.Id,
 		Provider:  in.Provider,
@@ -49,7 +49,7 @@ func (m *authProviderMapper) MapModelToProto(obj interface{}) (interface{}, erro
 	var err error
 
 	in := obj.(*AuthProvider)
-	out := &user_service.AuthProvider{
+	out := &pkg.AuthProvider{
 		Id:        in.Id,
 		Provider:  in.Provider,
 		Token:     in.Token,
@@ -66,7 +66,7 @@ func (m *authProviderMapper) MapModelToProto(obj interface{}) (interface{}, erro
 		return nil, err
 	}
 
-	out.User = user.(*user_service.User)
+	out.User = user.(*pkg.User)
 
 	if in.CreatedAt.IsZero() {
 		return nil, errors.New("created time cannot be empty")

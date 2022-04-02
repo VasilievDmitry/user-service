@@ -4,10 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"github.com/lotproject/go-proto/go/user_service"
 	"github.com/lotproject/user-service/config"
 	"github.com/lotproject/user-service/internal/repository"
 	"github.com/lotproject/user-service/internal/repository/mocks"
+	"github.com/lotproject/user-service/pkg"
 	microErrors "github.com/micro/go-micro/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -49,7 +49,7 @@ func (suite *UserTestSuite) TearDownTest() {
 func (suite *UserTestSuite) Test_GetUserById_GetUserDbError() {
 	var (
 		ctx = context.Background()
-		req = &user_service.GetUserByIdRequest{
+		req = &pkg.GetUserByIdRequest{
 			UserId: "user_id",
 		}
 	)
@@ -63,23 +63,23 @@ func (suite *UserTestSuite) Test_GetUserById_GetUserDbError() {
 
 	mErr := microErrors.Parse(err.Error())
 	assert.NotEmpty(suite.T(), mErr)
-	assert.Equal(suite.T(), user_service.ServiceName, mErr.Id)
+	assert.Equal(suite.T(), pkg.ServiceName, mErr.Id)
 	assert.Equal(suite.T(), int32(404), mErr.Code)
-	assert.Equal(suite.T(), user_service.ErrorUserNotFound, mErr.Detail)
+	assert.Equal(suite.T(), pkg.ErrorUserNotFound, mErr.Detail)
 }
 
 func (suite *UserTestSuite) Test_GetUserById_Success() {
 	var (
 		ctx  = context.Background()
-		user = &user_service.User{
+		user = &pkg.User{
 			Id:       "user_id",
 			IsActive: true,
 		}
 		profile = suite.service.convertUserToProfile(user)
-		req     = &user_service.GetUserByIdRequest{
+		req     = &pkg.GetUserByIdRequest{
 			UserId: user.Id,
 		}
-		res = &user_service.ResponseWithUserProfile{}
+		res = &pkg.ResponseWithUserProfile{}
 	)
 
 	userRep := &mocks.UserRepositoryInterface{}
@@ -96,7 +96,7 @@ func (suite *UserTestSuite) Test_GetUserById_Success() {
 func (suite *UserTestSuite) Test_GetUserByLogin_GetUserDbError() {
 	var (
 		ctx = context.Background()
-		req = &user_service.GetUserByLoginRequest{
+		req = &pkg.GetUserByLoginRequest{
 			Login: "login",
 		}
 	)
@@ -110,24 +110,24 @@ func (suite *UserTestSuite) Test_GetUserByLogin_GetUserDbError() {
 
 	mErr := microErrors.Parse(err.Error())
 	assert.NotEmpty(suite.T(), mErr)
-	assert.Equal(suite.T(), user_service.ServiceName, mErr.Id)
+	assert.Equal(suite.T(), pkg.ServiceName, mErr.Id)
 	assert.Equal(suite.T(), int32(404), mErr.Code)
-	assert.Equal(suite.T(), user_service.ErrorUserNotFound, mErr.Detail)
+	assert.Equal(suite.T(), pkg.ErrorUserNotFound, mErr.Detail)
 }
 
 func (suite *UserTestSuite) Test_GetUserByLogin_Success() {
 	var (
 		ctx  = context.Background()
-		user = &user_service.User{
+		user = &pkg.User{
 			Id:       "user_id",
 			Login:    "login",
 			IsActive: true,
 		}
 		profile = suite.service.convertUserToProfile(user)
-		req     = &user_service.GetUserByLoginRequest{
+		req     = &pkg.GetUserByLoginRequest{
 			Login: user.Login,
 		}
-		res = &user_service.ResponseWithUserProfile{}
+		res = &pkg.ResponseWithUserProfile{}
 	)
 
 	userRep := &mocks.UserRepositoryInterface{}
@@ -144,7 +144,7 @@ func (suite *UserTestSuite) Test_GetUserByLogin_Success() {
 func (suite *UserTestSuite) Test_GetUserByAccessToken_GetByAccessTokenDbError() {
 	var (
 		ctx = context.Background()
-		req = &user_service.GetUserByAccessTokenRequest{
+		req = &pkg.GetUserByAccessTokenRequest{
 			AccessToken: "access_token",
 		}
 	)
@@ -158,20 +158,20 @@ func (suite *UserTestSuite) Test_GetUserByAccessToken_GetByAccessTokenDbError() 
 
 	mErr := microErrors.Parse(err.Error())
 	assert.NotEmpty(suite.T(), mErr)
-	assert.Equal(suite.T(), user_service.ServiceName, mErr.Id)
+	assert.Equal(suite.T(), pkg.ServiceName, mErr.Id)
 	assert.Equal(suite.T(), int32(404), mErr.Code)
-	assert.Equal(suite.T(), user_service.ErrorAuthenticationNotFound, mErr.Detail)
+	assert.Equal(suite.T(), pkg.ErrorAuthenticationNotFound, mErr.Detail)
 }
 
 func (suite *UserTestSuite) Test_GetUserByAccessToken_GetUserDbError() {
 	var (
 		ctx     = context.Background()
-		authLog = &user_service.AuthLog{
-			User: &user_service.User{
+		authLog = &pkg.AuthLog{
+			User: &pkg.User{
 				Id: "user_id",
 			},
 		}
-		req = &user_service.GetUserByAccessTokenRequest{
+		req = &pkg.GetUserByAccessTokenRequest{
 			AccessToken: "access_token",
 		}
 	)
@@ -189,27 +189,27 @@ func (suite *UserTestSuite) Test_GetUserByAccessToken_GetUserDbError() {
 
 	mErr := microErrors.Parse(err.Error())
 	assert.NotEmpty(suite.T(), mErr)
-	assert.Equal(suite.T(), user_service.ServiceName, mErr.Id)
+	assert.Equal(suite.T(), pkg.ServiceName, mErr.Id)
 	assert.Equal(suite.T(), int32(404), mErr.Code)
-	assert.Equal(suite.T(), user_service.ErrorUserNotFound, mErr.Detail)
+	assert.Equal(suite.T(), pkg.ErrorUserNotFound, mErr.Detail)
 }
 
 func (suite *UserTestSuite) Test_GetUserByAccessToken_Success() {
 	var (
 		ctx  = context.Background()
-		user = &user_service.User{
+		user = &pkg.User{
 			Id:       "user_id",
 			Login:    "login",
 			IsActive: true,
 		}
 		profile = suite.service.convertUserToProfile(user)
-		authLog = &user_service.AuthLog{
+		authLog = &pkg.AuthLog{
 			User: user,
 		}
-		req = &user_service.GetUserByAccessTokenRequest{
+		req = &pkg.GetUserByAccessTokenRequest{
 			AccessToken: "access_token",
 		}
-		res = &user_service.ResponseWithUserProfile{}
+		res = &pkg.ResponseWithUserProfile{}
 	)
 
 	authLogRep := &mocks.AuthLogRepositoryInterface{}
@@ -231,11 +231,11 @@ func (suite *UserTestSuite) Test_GetUserByAccessToken_Success() {
 func (suite *UserTestSuite) Test_SetUsername_GetUserDbError() {
 	var (
 		ctx  = context.Background()
-		user = &user_service.User{
+		user = &pkg.User{
 			Id:       "user_id",
 			Username: "username",
 		}
-		req = &user_service.SetUsernameRequest{
+		req = &pkg.SetUsernameRequest{
 			UserId:   user.Id,
 			Username: user.Username,
 		}
@@ -250,19 +250,19 @@ func (suite *UserTestSuite) Test_SetUsername_GetUserDbError() {
 
 	mErr := microErrors.Parse(err.Error())
 	assert.NotEmpty(suite.T(), mErr)
-	assert.Equal(suite.T(), user_service.ServiceName, mErr.Id)
+	assert.Equal(suite.T(), pkg.ServiceName, mErr.Id)
 	assert.Equal(suite.T(), int32(404), mErr.Code)
-	assert.Equal(suite.T(), user_service.ErrorUserNotFound, mErr.Detail)
+	assert.Equal(suite.T(), pkg.ErrorUserNotFound, mErr.Detail)
 }
 
 func (suite *UserTestSuite) Test_SetUsername_UpdateUserDbError() {
 	var (
 		ctx  = context.Background()
-		user = &user_service.User{
+		user = &pkg.User{
 			Id:       "user_id",
 			Username: "username",
 		}
-		req = &user_service.SetUsernameRequest{
+		req = &pkg.SetUsernameRequest{
 			UserId:   user.Id,
 			Username: "username2",
 		}
@@ -270,7 +270,7 @@ func (suite *UserTestSuite) Test_SetUsername_UpdateUserDbError() {
 
 	userRep := &mocks.UserRepositoryInterface{}
 	userRep.On("GetById", ctx, req.UserId).Return(user, nil)
-	userRep.On("Update", ctx, mock.MatchedBy(func(input *user_service.User) bool {
+	userRep.On("Update", ctx, mock.MatchedBy(func(input *pkg.User) bool {
 		return input.Id == user.Id && input.Username == req.Username
 	})).Return(errors.New("db_error"))
 	suite.service.repositories.User = userRep
@@ -280,19 +280,19 @@ func (suite *UserTestSuite) Test_SetUsername_UpdateUserDbError() {
 
 	mErr := microErrors.Parse(err.Error())
 	assert.NotEmpty(suite.T(), mErr)
-	assert.Equal(suite.T(), user_service.ServiceName, mErr.Id)
+	assert.Equal(suite.T(), pkg.ServiceName, mErr.Id)
 	assert.Equal(suite.T(), int32(500), mErr.Code)
-	assert.Equal(suite.T(), user_service.ErrorInternalError, mErr.Detail)
+	assert.Equal(suite.T(), pkg.ErrorInternalError, mErr.Detail)
 }
 
 func (suite *UserTestSuite) Test_SetUsername_Success() {
 	var (
 		ctx  = context.Background()
-		user = &user_service.User{
+		user = &pkg.User{
 			Id:       "user_id",
 			Username: "username",
 		}
-		req = &user_service.SetUsernameRequest{
+		req = &pkg.SetUsernameRequest{
 			UserId:   user.Id,
 			Username: "username2",
 		}
@@ -300,7 +300,7 @@ func (suite *UserTestSuite) Test_SetUsername_Success() {
 
 	userRep := &mocks.UserRepositoryInterface{}
 	userRep.On("GetById", ctx, req.UserId).Return(user, nil)
-	userRep.On("Update", ctx, mock.MatchedBy(func(input *user_service.User) bool {
+	userRep.On("Update", ctx, mock.MatchedBy(func(input *pkg.User) bool {
 		return input.Id == user.Id && input.Username == req.Username
 	})).Return(nil)
 	suite.service.repositories.User = userRep
@@ -312,12 +312,12 @@ func (suite *UserTestSuite) Test_SetUsername_Success() {
 func (suite *UserTestSuite) Test_SetLogin_GetUserDbError() {
 	var (
 		ctx  = context.Background()
-		user = &user_service.User{
+		user = &pkg.User{
 			Id:             "user_id",
 			Login:          "login",
 			EmailConfirmed: true,
 		}
-		req = &user_service.SetLoginRequest{
+		req = &pkg.SetLoginRequest{
 			UserId: user.Id,
 			Login:  user.Login,
 		}
@@ -332,20 +332,20 @@ func (suite *UserTestSuite) Test_SetLogin_GetUserDbError() {
 
 	mErr := microErrors.Parse(err.Error())
 	assert.NotEmpty(suite.T(), mErr)
-	assert.Equal(suite.T(), user_service.ServiceName, mErr.Id)
+	assert.Equal(suite.T(), pkg.ServiceName, mErr.Id)
 	assert.Equal(suite.T(), int32(404), mErr.Code)
-	assert.Equal(suite.T(), user_service.ErrorUserNotFound, mErr.Detail)
+	assert.Equal(suite.T(), pkg.ErrorUserNotFound, mErr.Detail)
 }
 
 func (suite *UserTestSuite) Test_SetLogin_AlreadyConfirmed() {
 	var (
 		ctx  = context.Background()
-		user = &user_service.User{
+		user = &pkg.User{
 			Id:             "user_id",
 			Login:          "login",
 			EmailConfirmed: true,
 		}
-		req = &user_service.SetLoginRequest{
+		req = &pkg.SetLoginRequest{
 			UserId: user.Id,
 			Login:  "login",
 		}
@@ -360,20 +360,20 @@ func (suite *UserTestSuite) Test_SetLogin_AlreadyConfirmed() {
 
 	mErr := microErrors.Parse(err.Error())
 	assert.NotEmpty(suite.T(), mErr)
-	assert.Equal(suite.T(), user_service.ServiceName, mErr.Id)
+	assert.Equal(suite.T(), pkg.ServiceName, mErr.Id)
 	assert.Equal(suite.T(), int32(400), mErr.Code)
-	assert.Equal(suite.T(), user_service.ErrorLoginAlreadyConfirmed, mErr.Detail)
+	assert.Equal(suite.T(), pkg.ErrorLoginAlreadyConfirmed, mErr.Detail)
 }
 
 func (suite *UserTestSuite) Test_SetLogin_UpdateUserDbError() {
 	var (
 		ctx  = context.Background()
-		user = &user_service.User{
+		user = &pkg.User{
 			Id:             "user_id",
 			Login:          "login",
 			EmailConfirmed: false,
 		}
-		req = &user_service.SetLoginRequest{
+		req = &pkg.SetLoginRequest{
 			UserId: user.Id,
 			Login:  "login_new",
 		}
@@ -381,7 +381,7 @@ func (suite *UserTestSuite) Test_SetLogin_UpdateUserDbError() {
 
 	userRep := &mocks.UserRepositoryInterface{}
 	userRep.On("GetById", ctx, req.UserId).Return(user, nil)
-	userRep.On("Update", ctx, mock.MatchedBy(func(input *user_service.User) bool {
+	userRep.On("Update", ctx, mock.MatchedBy(func(input *pkg.User) bool {
 		return input.Id == user.Id && input.Login == req.Login && input.EmailCode != ""
 	})).Return(errors.New("db_error"))
 	suite.service.repositories.User = userRep
@@ -391,20 +391,20 @@ func (suite *UserTestSuite) Test_SetLogin_UpdateUserDbError() {
 
 	mErr := microErrors.Parse(err.Error())
 	assert.NotEmpty(suite.T(), mErr)
-	assert.Equal(suite.T(), user_service.ServiceName, mErr.Id)
+	assert.Equal(suite.T(), pkg.ServiceName, mErr.Id)
 	assert.Equal(suite.T(), int32(500), mErr.Code)
-	assert.Equal(suite.T(), user_service.ErrorInternalError, mErr.Detail)
+	assert.Equal(suite.T(), pkg.ErrorInternalError, mErr.Detail)
 }
 
 func (suite *UserTestSuite) Test_SetLogin_UpdateDuplicateEntryError() {
 	var (
 		ctx  = context.Background()
-		user = &user_service.User{
+		user = &pkg.User{
 			Id:             "user_id",
 			Login:          "login",
 			EmailConfirmed: false,
 		}
-		req = &user_service.SetLoginRequest{
+		req = &pkg.SetLoginRequest{
 			UserId: user.Id,
 			Login:  "login_new",
 		}
@@ -412,7 +412,7 @@ func (suite *UserTestSuite) Test_SetLogin_UpdateDuplicateEntryError() {
 
 	userRep := &mocks.UserRepositoryInterface{}
 	userRep.On("GetById", ctx, req.UserId).Return(user, nil)
-	userRep.On("Update", ctx, mock.MatchedBy(func(input *user_service.User) bool {
+	userRep.On("Update", ctx, mock.MatchedBy(func(input *pkg.User) bool {
 		return input.Id == user.Id && input.Login == req.Login && input.EmailCode != ""
 	})).Return(errors.New("Duplicate entry"))
 	suite.service.repositories.User = userRep
@@ -422,29 +422,29 @@ func (suite *UserTestSuite) Test_SetLogin_UpdateDuplicateEntryError() {
 
 	mErr := microErrors.Parse(err.Error())
 	assert.NotEmpty(suite.T(), mErr)
-	assert.Equal(suite.T(), user_service.ServiceName, mErr.Id)
+	assert.Equal(suite.T(), pkg.ServiceName, mErr.Id)
 	assert.Equal(suite.T(), int32(409), mErr.Code)
-	assert.Equal(suite.T(), user_service.ErrorLoginAlreadyExists, mErr.Detail)
+	assert.Equal(suite.T(), pkg.ErrorLoginAlreadyExists, mErr.Detail)
 }
 
 func (suite *UserTestSuite) Test_SetLogin_Success() {
 	var (
 		ctx  = context.Background()
-		user = &user_service.User{
+		user = &pkg.User{
 			Id:             "user_id",
 			Login:          "login",
 			EmailConfirmed: false,
 		}
-		req = &user_service.SetLoginRequest{
+		req = &pkg.SetLoginRequest{
 			UserId: user.Id,
 			Login:  "login_new",
 		}
-		res = &user_service.SetLoginResponse{}
+		res = &pkg.SetLoginResponse{}
 	)
 
 	userRep := &mocks.UserRepositoryInterface{}
 	userRep.On("GetById", ctx, req.UserId).Return(user, nil)
-	userRep.On("Update", ctx, mock.MatchedBy(func(input *user_service.User) bool {
+	userRep.On("Update", ctx, mock.MatchedBy(func(input *pkg.User) bool {
 		return input.Id == user.Id && input.Login == req.Login && input.EmailCode != ""
 	})).Return(nil)
 	suite.service.repositories.User = userRep
@@ -458,12 +458,12 @@ func (suite *UserTestSuite) Test_SetLogin_Success() {
 func (suite *UserTestSuite) Test_ConfirmLogin_GetUserDbError() {
 	var (
 		ctx  = context.Background()
-		user = &user_service.User{
+		user = &pkg.User{
 			Id:             "user_id",
 			EmailCode:      "code",
 			EmailConfirmed: true,
 		}
-		req = &user_service.ConfirmLoginRequest{
+		req = &pkg.ConfirmLoginRequest{
 			UserId: user.Id,
 			Code:   user.EmailCode,
 		}
@@ -478,20 +478,20 @@ func (suite *UserTestSuite) Test_ConfirmLogin_GetUserDbError() {
 
 	mErr := microErrors.Parse(err.Error())
 	assert.NotEmpty(suite.T(), mErr)
-	assert.Equal(suite.T(), user_service.ServiceName, mErr.Id)
+	assert.Equal(suite.T(), pkg.ServiceName, mErr.Id)
 	assert.Equal(suite.T(), int32(404), mErr.Code)
-	assert.Equal(suite.T(), user_service.ErrorUserNotFound, mErr.Detail)
+	assert.Equal(suite.T(), pkg.ErrorUserNotFound, mErr.Detail)
 }
 
 func (suite *UserTestSuite) Test_ConfirmLogin_AlreadyConfirmed() {
 	var (
 		ctx  = context.Background()
-		user = &user_service.User{
+		user = &pkg.User{
 			Id:             "user_id",
 			EmailCode:      "code",
 			EmailConfirmed: true,
 		}
-		req = &user_service.ConfirmLoginRequest{
+		req = &pkg.ConfirmLoginRequest{
 			UserId: user.Id,
 			Code:   user.EmailCode,
 		}
@@ -506,20 +506,20 @@ func (suite *UserTestSuite) Test_ConfirmLogin_AlreadyConfirmed() {
 
 	mErr := microErrors.Parse(err.Error())
 	assert.NotEmpty(suite.T(), mErr)
-	assert.Equal(suite.T(), user_service.ServiceName, mErr.Id)
+	assert.Equal(suite.T(), pkg.ServiceName, mErr.Id)
 	assert.Equal(suite.T(), int32(400), mErr.Code)
-	assert.Equal(suite.T(), user_service.ErrorLoginAlreadyConfirmed, mErr.Detail)
+	assert.Equal(suite.T(), pkg.ErrorLoginAlreadyConfirmed, mErr.Detail)
 }
 
 func (suite *UserTestSuite) Test_ConfirmLogin_InvalidCode() {
 	var (
 		ctx  = context.Background()
-		user = &user_service.User{
+		user = &pkg.User{
 			Id:             "user_id",
 			EmailCode:      "code",
 			EmailConfirmed: false,
 		}
-		req = &user_service.ConfirmLoginRequest{
+		req = &pkg.ConfirmLoginRequest{
 			UserId: user.Id,
 			Code:   "code2",
 		}
@@ -534,20 +534,20 @@ func (suite *UserTestSuite) Test_ConfirmLogin_InvalidCode() {
 
 	mErr := microErrors.Parse(err.Error())
 	assert.NotEmpty(suite.T(), mErr)
-	assert.Equal(suite.T(), user_service.ServiceName, mErr.Id)
+	assert.Equal(suite.T(), pkg.ServiceName, mErr.Id)
 	assert.Equal(suite.T(), int32(400), mErr.Code)
-	assert.Equal(suite.T(), user_service.ErrorRecoveryCodeInvalid, mErr.Detail)
+	assert.Equal(suite.T(), pkg.ErrorRecoveryCodeInvalid, mErr.Detail)
 }
 
 func (suite *UserTestSuite) Test_ConfirmLogin_UpdateUserDbError() {
 	var (
 		ctx  = context.Background()
-		user = &user_service.User{
+		user = &pkg.User{
 			Id:             "user_id",
 			EmailCode:      "code",
 			EmailConfirmed: false,
 		}
-		req = &user_service.ConfirmLoginRequest{
+		req = &pkg.ConfirmLoginRequest{
 			UserId: user.Id,
 			Code:   user.EmailCode,
 		}
@@ -555,7 +555,7 @@ func (suite *UserTestSuite) Test_ConfirmLogin_UpdateUserDbError() {
 
 	userRep := &mocks.UserRepositoryInterface{}
 	userRep.On("GetById", ctx, req.UserId).Return(user, nil)
-	userRep.On("Update", ctx, mock.MatchedBy(func(input *user_service.User) bool {
+	userRep.On("Update", ctx, mock.MatchedBy(func(input *pkg.User) bool {
 		return input.Id == user.Id && input.EmailCode == "" && input.EmailConfirmed == true
 	})).Return(errors.New("db_error"))
 	suite.service.repositories.User = userRep
@@ -565,20 +565,20 @@ func (suite *UserTestSuite) Test_ConfirmLogin_UpdateUserDbError() {
 
 	mErr := microErrors.Parse(err.Error())
 	assert.NotEmpty(suite.T(), mErr)
-	assert.Equal(suite.T(), user_service.ServiceName, mErr.Id)
+	assert.Equal(suite.T(), pkg.ServiceName, mErr.Id)
 	assert.Equal(suite.T(), int32(500), mErr.Code)
-	assert.Equal(suite.T(), user_service.ErrorInternalError, mErr.Detail)
+	assert.Equal(suite.T(), pkg.ErrorInternalError, mErr.Detail)
 }
 
 func (suite *UserTestSuite) Test_ConfirmLogin_Success() {
 	var (
 		ctx  = context.Background()
-		user = &user_service.User{
+		user = &pkg.User{
 			Id:             "user_id",
 			EmailCode:      "code",
 			EmailConfirmed: false,
 		}
-		req = &user_service.ConfirmLoginRequest{
+		req = &pkg.ConfirmLoginRequest{
 			UserId: user.Id,
 			Code:   user.EmailCode,
 		}
@@ -586,7 +586,7 @@ func (suite *UserTestSuite) Test_ConfirmLogin_Success() {
 
 	userRep := &mocks.UserRepositoryInterface{}
 	userRep.On("GetById", ctx, req.UserId).Return(user, nil)
-	userRep.On("Update", ctx, mock.MatchedBy(func(input *user_service.User) bool {
+	userRep.On("Update", ctx, mock.MatchedBy(func(input *pkg.User) bool {
 		return input.Id == user.Id && input.EmailCode == "" && input.EmailConfirmed == true
 	})).Return(nil)
 	suite.service.repositories.User = userRep

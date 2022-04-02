@@ -6,10 +6,10 @@ import (
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/lotproject/go-helpers/db"
-	"github.com/lotproject/go-proto/go/user_service"
 	"github.com/lotproject/user-service/config"
 	"github.com/lotproject/user-service/internal/repository/mocks"
 	"github.com/lotproject/user-service/internal/repository/models"
+	"github.com/lotproject/user-service/pkg"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
@@ -23,7 +23,7 @@ type AuthLogTestSuite struct {
 	db         *sqlx.DB
 	userRep    *userRepository
 	authLogRep *authLogRepository
-	user       *user_service.User
+	user       *pkg.User
 	cfg        *config.Config
 }
 
@@ -63,7 +63,7 @@ func (suite *AuthLogTestSuite) SetupSuite() {
 func (suite *AuthLogTestSuite) SetupTest() {
 	suite.authLogRep.mapper = models.NewAuthLogMapper()
 
-	suite.user = &user_service.User{
+	suite.user = &pkg.User{
 		Id: uuid.NewString(),
 	}
 
@@ -290,8 +290,8 @@ func (suite *AuthLogTestSuite) Test_GetByRefreshToken_MappingError() {
 	assert.Error(suite.T(), err)
 }
 
-func (suite *AuthLogTestSuite) getDefaultLog() *user_service.AuthLog {
-	return &user_service.AuthLog{
+func (suite *AuthLogTestSuite) getDefaultLog() *pkg.AuthLog {
+	return &pkg.AuthLog{
 		AccessToken:  "access_token",
 		RefreshToken: "refresh_token",
 		UserAgent:    "user_agent",

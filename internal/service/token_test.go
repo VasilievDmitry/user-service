@@ -4,10 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"github.com/lotproject/go-proto/go/user_service"
 	"github.com/lotproject/user-service/config"
 	"github.com/lotproject/user-service/internal/repository"
 	"github.com/lotproject/user-service/internal/repository/mocks"
+	"github.com/lotproject/user-service/pkg"
 	microErrors "github.com/micro/go-micro/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -49,7 +49,7 @@ func (suite *TokenTestSuite) TearDownTest() {
 func (suite *TokenTestSuite) Test_CreateAuthToken_GetUserDbError() {
 	var (
 		ctx = context.Background()
-		req = &user_service.CreateAuthTokenRequest{
+		req = &pkg.CreateAuthTokenRequest{
 			UserId: "user_id",
 		}
 	)
@@ -63,18 +63,18 @@ func (suite *TokenTestSuite) Test_CreateAuthToken_GetUserDbError() {
 
 	mErr := microErrors.Parse(err.Error())
 	assert.NotEmpty(suite.T(), mErr)
-	assert.Equal(suite.T(), user_service.ServiceName, mErr.Id)
+	assert.Equal(suite.T(), pkg.ServiceName, mErr.Id)
 	assert.Equal(suite.T(), int32(404), mErr.Code)
-	assert.Equal(suite.T(), user_service.ErrorUserNotFound, mErr.Detail)
+	assert.Equal(suite.T(), pkg.ErrorUserNotFound, mErr.Detail)
 }
 
 func (suite *TokenTestSuite) Test_CreateAuthToken_InsertAuthLogDbError() {
 	var (
 		ctx  = context.Background()
-		user = &user_service.User{
+		user = &pkg.User{
 			Id: "user_id",
 		}
-		req = &user_service.CreateAuthTokenRequest{
+		req = &pkg.CreateAuthTokenRequest{
 			UserId:    user.Id,
 			UserAgent: "user_agent",
 			Ip:        "ip",
@@ -86,7 +86,7 @@ func (suite *TokenTestSuite) Test_CreateAuthToken_InsertAuthLogDbError() {
 	suite.service.repositories.User = userRep
 
 	authLogRep := &mocks.AuthLogRepositoryInterface{}
-	authLogRep.On("Insert", ctx, mock.MatchedBy(func(input *user_service.AuthLog) bool {
+	authLogRep.On("Insert", ctx, mock.MatchedBy(func(input *pkg.AuthLog) bool {
 		return input.User != nil && input.User.Id == user.Id && input.IsActive == true && input.AccessToken != "" &&
 			input.RefreshToken != "" && input.ExpireAt != nil && input.Ip == req.Ip && input.UserAgent == req.UserAgent
 	})).Return(errors.New("db_error"))
@@ -97,23 +97,23 @@ func (suite *TokenTestSuite) Test_CreateAuthToken_InsertAuthLogDbError() {
 
 	mErr := microErrors.Parse(err.Error())
 	assert.NotEmpty(suite.T(), mErr)
-	assert.Equal(suite.T(), user_service.ServiceName, mErr.Id)
+	assert.Equal(suite.T(), pkg.ServiceName, mErr.Id)
 	assert.Equal(suite.T(), int32(500), mErr.Code)
-	assert.Equal(suite.T(), user_service.ErrorInternalError, mErr.Detail)
+	assert.Equal(suite.T(), pkg.ErrorInternalError, mErr.Detail)
 }
 
 func (suite *TokenTestSuite) Test_CreateAuthToken_Success() {
 	var (
 		ctx  = context.Background()
-		user = &user_service.User{
+		user = &pkg.User{
 			Id: "user_id",
 		}
-		req = &user_service.CreateAuthTokenRequest{
+		req = &pkg.CreateAuthTokenRequest{
 			UserId:    user.Id,
 			UserAgent: "user_agent",
 			Ip:        "ip",
 		}
-		res = &user_service.ResponseWithAuthToken{}
+		res = &pkg.ResponseWithAuthToken{}
 	)
 
 	userRep := &mocks.UserRepositoryInterface{}
@@ -121,7 +121,7 @@ func (suite *TokenTestSuite) Test_CreateAuthToken_Success() {
 	suite.service.repositories.User = userRep
 
 	authLogRep := &mocks.AuthLogRepositoryInterface{}
-	authLogRep.On("Insert", ctx, mock.MatchedBy(func(input *user_service.AuthLog) bool {
+	authLogRep.On("Insert", ctx, mock.MatchedBy(func(input *pkg.AuthLog) bool {
 		return input.User != nil && input.User.Id == user.Id && input.IsActive == true && input.AccessToken != "" &&
 			input.RefreshToken != "" && input.ExpireAt != nil && input.Ip == req.Ip && input.UserAgent == req.UserAgent
 	})).Return(nil)
@@ -138,7 +138,7 @@ func (suite *TokenTestSuite) Test_CreateAuthToken_Success() {
 func (suite *TokenTestSuite) Test_RefreshAccessToken_GetByRefreshTokenDbError() {
 	var (
 		ctx = context.Background()
-		req = &user_service.RefreshAccessTokenRequest{
+		req = &pkg.RefreshAccessTokenRequest{
 			RefreshToken: "refresh_token",
 		}
 	)
@@ -152,30 +152,30 @@ func (suite *TokenTestSuite) Test_RefreshAccessToken_GetByRefreshTokenDbError() 
 
 	mErr := microErrors.Parse(err.Error())
 	assert.NotEmpty(suite.T(), mErr)
-	assert.Equal(suite.T(), user_service.ServiceName, mErr.Id)
+	assert.Equal(suite.T(), pkg.ServiceName, mErr.Id)
 	assert.Equal(suite.T(), int32(404), mErr.Code)
-	assert.Equal(suite.T(), user_service.ErrorAuthenticationNotFound, mErr.Detail)
+	assert.Equal(suite.T(), pkg.ErrorAuthenticationNotFound, mErr.Detail)
 }
 
 func (suite *TokenTestSuite) Test_RefreshAccessToken_UpdateAuthLogDbError() {
 	var (
 		ctx            = context.Background()
 		oldAccessToken = "access_token"
-		authLog        = &user_service.AuthLog{
-			User: &user_service.User{
+		authLog        = &pkg.AuthLog{
+			User: &pkg.User{
 				Id: "user_id",
 			},
 			RefreshToken: "refresh_token",
 			AccessToken:  oldAccessToken,
 		}
-		req = &user_service.RefreshAccessTokenRequest{
+		req = &pkg.RefreshAccessTokenRequest{
 			RefreshToken: authLog.RefreshToken,
 		}
 	)
 
 	authLogRep := &mocks.AuthLogRepositoryInterface{}
 	authLogRep.On("GetByRefreshToken", ctx, req.RefreshToken).Return(authLog, nil)
-	authLogRep.On("Update", ctx, mock.MatchedBy(func(input *user_service.AuthLog) bool {
+	authLogRep.On("Update", ctx, mock.MatchedBy(func(input *pkg.AuthLog) bool {
 		return input.User != nil && input.User.Id == authLog.User.Id &&
 			input.AccessToken != oldAccessToken && input.RefreshToken != ""
 	})).Return(errors.New("db_error"))
@@ -186,31 +186,31 @@ func (suite *TokenTestSuite) Test_RefreshAccessToken_UpdateAuthLogDbError() {
 
 	mErr := microErrors.Parse(err.Error())
 	assert.NotEmpty(suite.T(), mErr)
-	assert.Equal(suite.T(), user_service.ServiceName, mErr.Id)
+	assert.Equal(suite.T(), pkg.ServiceName, mErr.Id)
 	assert.Equal(suite.T(), int32(500), mErr.Code)
-	assert.Equal(suite.T(), user_service.ErrorInternalError, mErr.Detail)
+	assert.Equal(suite.T(), pkg.ErrorInternalError, mErr.Detail)
 }
 
 func (suite *TokenTestSuite) Test_RefreshAccessToken_Success() {
 	var (
 		ctx            = context.Background()
 		oldAccessToken = "access_token"
-		authLog        = &user_service.AuthLog{
-			User: &user_service.User{
+		authLog        = &pkg.AuthLog{
+			User: &pkg.User{
 				Id: "user_id",
 			},
 			RefreshToken: "refresh_token",
 			AccessToken:  oldAccessToken,
 		}
-		req = &user_service.RefreshAccessTokenRequest{
+		req = &pkg.RefreshAccessTokenRequest{
 			RefreshToken: authLog.RefreshToken,
 		}
-		res = &user_service.ResponseWithAuthToken{}
+		res = &pkg.ResponseWithAuthToken{}
 	)
 
 	authLogRep := &mocks.AuthLogRepositoryInterface{}
 	authLogRep.On("GetByRefreshToken", ctx, req.RefreshToken).Return(authLog, nil)
-	authLogRep.On("Update", ctx, mock.MatchedBy(func(input *user_service.AuthLog) bool {
+	authLogRep.On("Update", ctx, mock.MatchedBy(func(input *pkg.AuthLog) bool {
 		return input.User != nil && input.User.Id == authLog.User.Id &&
 			input.AccessToken != oldAccessToken && input.RefreshToken != ""
 	})).Return(nil)
@@ -227,7 +227,7 @@ func (suite *TokenTestSuite) Test_RefreshAccessToken_Success() {
 func (suite *TokenTestSuite) Test_DeactivateAuthToken_GetByAccessTokenDbError() {
 	var (
 		ctx = context.Background()
-		req = &user_service.DeactivateAuthTokenRequest{
+		req = &pkg.DeactivateAuthTokenRequest{
 			UserId:      "user_id",
 			AccessToken: "access_token",
 		}
@@ -242,20 +242,20 @@ func (suite *TokenTestSuite) Test_DeactivateAuthToken_GetByAccessTokenDbError() 
 
 	mErr := microErrors.Parse(err.Error())
 	assert.NotEmpty(suite.T(), mErr)
-	assert.Equal(suite.T(), user_service.ServiceName, mErr.Id)
+	assert.Equal(suite.T(), pkg.ServiceName, mErr.Id)
 	assert.Equal(suite.T(), int32(404), mErr.Code)
-	assert.Equal(suite.T(), user_service.ErrorAuthenticationNotFound, mErr.Detail)
+	assert.Equal(suite.T(), pkg.ErrorAuthenticationNotFound, mErr.Detail)
 }
 
 func (suite *TokenTestSuite) Test_DeactivateAuthToken_TokenOwnerInvalid() {
 	var (
 		ctx     = context.Background()
-		authLog = &user_service.AuthLog{
-			User: &user_service.User{
+		authLog = &pkg.AuthLog{
+			User: &pkg.User{
 				Id: "user_id",
 			},
 		}
-		req = &user_service.DeactivateAuthTokenRequest{
+		req = &pkg.DeactivateAuthTokenRequest{
 			UserId:      "user_id2",
 			AccessToken: "access_token",
 		}
@@ -270,20 +270,20 @@ func (suite *TokenTestSuite) Test_DeactivateAuthToken_TokenOwnerInvalid() {
 
 	mErr := microErrors.Parse(err.Error())
 	assert.NotEmpty(suite.T(), mErr)
-	assert.Equal(suite.T(), user_service.ServiceName, mErr.Id)
+	assert.Equal(suite.T(), pkg.ServiceName, mErr.Id)
 	assert.Equal(suite.T(), int32(403), mErr.Code)
-	assert.Equal(suite.T(), user_service.ErrorTokenOwnerInvalid, mErr.Detail)
+	assert.Equal(suite.T(), pkg.ErrorTokenOwnerInvalid, mErr.Detail)
 }
 
 func (suite *TokenTestSuite) Test_DeactivateAuthToken_UpdateAuthLogDbError() {
 	var (
 		ctx     = context.Background()
-		authLog = &user_service.AuthLog{
-			User: &user_service.User{
+		authLog = &pkg.AuthLog{
+			User: &pkg.User{
 				Id: "user_id",
 			},
 		}
-		req = &user_service.DeactivateAuthTokenRequest{
+		req = &pkg.DeactivateAuthTokenRequest{
 			UserId:      authLog.User.Id,
 			AccessToken: "access_token",
 		}
@@ -291,7 +291,7 @@ func (suite *TokenTestSuite) Test_DeactivateAuthToken_UpdateAuthLogDbError() {
 
 	authLogRep := &mocks.AuthLogRepositoryInterface{}
 	authLogRep.On("GetByAccessToken", ctx, req.AccessToken).Return(authLog, nil)
-	authLogRep.On("Update", ctx, mock.MatchedBy(func(input *user_service.AuthLog) bool {
+	authLogRep.On("Update", ctx, mock.MatchedBy(func(input *pkg.AuthLog) bool {
 		return input.User != nil && input.User.Id == authLog.User.Id && input.IsActive == false
 	})).Return(errors.New("db_error"))
 	suite.service.repositories.AuthLog = authLogRep
@@ -301,20 +301,20 @@ func (suite *TokenTestSuite) Test_DeactivateAuthToken_UpdateAuthLogDbError() {
 
 	mErr := microErrors.Parse(err.Error())
 	assert.NotEmpty(suite.T(), mErr)
-	assert.Equal(suite.T(), user_service.ServiceName, mErr.Id)
+	assert.Equal(suite.T(), pkg.ServiceName, mErr.Id)
 	assert.Equal(suite.T(), int32(500), mErr.Code)
-	assert.Equal(suite.T(), user_service.ErrorInternalError, mErr.Detail)
+	assert.Equal(suite.T(), pkg.ErrorInternalError, mErr.Detail)
 }
 
 func (suite *TokenTestSuite) Test_DeactivateAuthToken_Success() {
 	var (
 		ctx     = context.Background()
-		authLog = &user_service.AuthLog{
-			User: &user_service.User{
+		authLog = &pkg.AuthLog{
+			User: &pkg.User{
 				Id: "user_id",
 			},
 		}
-		req = &user_service.DeactivateAuthTokenRequest{
+		req = &pkg.DeactivateAuthTokenRequest{
 			UserId:      authLog.User.Id,
 			AccessToken: "access_token",
 		}
@@ -322,7 +322,7 @@ func (suite *TokenTestSuite) Test_DeactivateAuthToken_Success() {
 
 	authLogRep := &mocks.AuthLogRepositoryInterface{}
 	authLogRep.On("GetByAccessToken", ctx, req.AccessToken).Return(authLog, nil)
-	authLogRep.On("Update", ctx, mock.MatchedBy(func(input *user_service.AuthLog) bool {
+	authLogRep.On("Update", ctx, mock.MatchedBy(func(input *pkg.AuthLog) bool {
 		return input.User != nil && input.User.Id == authLog.User.Id && input.IsActive == false
 	})).Return(nil)
 	suite.service.repositories.AuthLog = authLogRep

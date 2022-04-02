@@ -3,44 +3,44 @@ package service
 import (
 	"context"
 	dbHelper "github.com/lotproject/go-helpers/db"
-	"github.com/lotproject/go-proto/go/user_service"
+	"github.com/lotproject/user-service/pkg"
 	"github.com/micro/go-micro/errors"
 )
 
 func (s *Service) CreateUserByWallet(
 	ctx context.Context,
-	req *user_service.CreateUserByWalletRequest,
-	res *user_service.ResponseWithUserProfile,
+	req *pkg.CreateUserByWalletRequest,
+	res *pkg.ResponseWithUserProfile,
 ) error {
-	var user = &user_service.User{}
+	var user = &pkg.User{}
 
-	if !user_service.IsSupportedWalletType(req.Provider) {
-		return errors.BadRequest(user_service.ServiceName, user_service.ErrorWalletUnsupportedType)
+	if !pkg.IsSupportedWalletType(req.Provider) {
+		return errors.BadRequest(pkg.ServiceName, pkg.ErrorWalletUnsupportedType)
 	}
 
 	authProvider, err := s.repositories.AuthProvider.GetByToken(ctx, req.Provider, req.Token)
 
 	if err != nil {
 		if !dbHelper.IsNotFound(err) {
-			return errors.InternalServerError(user_service.ServiceName, user_service.ErrorInternalError)
+			return errors.InternalServerError(pkg.ServiceName, pkg.ErrorInternalError)
 		}
 
-		user = &user_service.User{
+		user = &pkg.User{
 			IsActive: true,
 		}
 
 		if err = s.repositories.User.Insert(ctx, user); err != nil {
-			return errors.InternalServerError(user_service.ServiceName, user_service.ErrorInternalError)
+			return errors.InternalServerError(pkg.ServiceName, pkg.ErrorInternalError)
 		}
 
-		authProvider = &user_service.AuthProvider{
+		authProvider = &pkg.AuthProvider{
 			User:     user,
 			Provider: req.Provider,
 			Token:    req.Token,
 		}
 
 		if err = s.repositories.AuthProvider.Insert(ctx, authProvider); err != nil {
-			return errors.InternalServerError(user_service.ServiceName, user_service.ErrorInternalError)
+			return errors.InternalServerError(pkg.ServiceName, pkg.ErrorInternalError)
 		}
 	} else {
 		user = authProvider.User

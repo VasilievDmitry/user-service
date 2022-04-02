@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	dbHelper "github.com/lotproject/go-helpers/db"
-	"github.com/lotproject/go-proto/go/user_service"
 	"github.com/lotproject/user-service/internal/repository/models"
+	"github.com/lotproject/user-service/pkg"
 	"go.uber.org/zap"
 )
 
@@ -16,16 +16,16 @@ type authLogRepository dbRepository
 // AuthLogRepositoryInterface is abstraction layer for working with authorizations of users and its representation in database.
 type AuthLogRepositoryInterface interface {
 	// Insert adds the user auth to the collection.
-	Insert(ctx context.Context, log *user_service.AuthLog) error
+	Insert(ctx context.Context, log *pkg.AuthLog) error
 
 	// Update updates the user auth to the collection.
-	Update(ctx context.Context, log *user_service.AuthLog) error
+	Update(ctx context.Context, log *pkg.AuthLog) error
 
 	// GetByAccessToken returns the user auth by access token.
-	GetByAccessToken(ctx context.Context, token string) (*user_service.AuthLog, error)
+	GetByAccessToken(ctx context.Context, token string) (*pkg.AuthLog, error)
 
 	// GetByRefreshToken returns the user auth by refresh token.
-	GetByRefreshToken(ctx context.Context, token string) (*user_service.AuthLog, error)
+	GetByRefreshToken(ctx context.Context, token string) (*pkg.AuthLog, error)
 }
 
 // NewAuthLogRepository create and return an object for working with the authorizations of user repository.
@@ -39,7 +39,7 @@ func NewAuthLogRepository(db *sqlx.DB, logger *zap.Logger) AuthLogRepositoryInte
 	return s
 }
 
-func (r *authLogRepository) Insert(ctx context.Context, log *user_service.AuthLog) error {
+func (r *authLogRepository) Insert(ctx context.Context, log *pkg.AuthLog) error {
 	model, err := r.mapper.MapProtoToModel(log)
 
 	if err != nil {
@@ -103,7 +103,7 @@ func (r *authLogRepository) Insert(ctx context.Context, log *user_service.AuthLo
 	return nil
 }
 
-func (r *authLogRepository) Update(ctx context.Context, log *user_service.AuthLog) error {
+func (r *authLogRepository) Update(ctx context.Context, log *pkg.AuthLog) error {
 	model, err := r.mapper.MapProtoToModel(log)
 
 	if err != nil {
@@ -144,7 +144,7 @@ func (r *authLogRepository) Update(ctx context.Context, log *user_service.AuthLo
 	return nil
 }
 
-func (r *authLogRepository) GetByAccessToken(ctx context.Context, token string) (*user_service.AuthLog, error) {
+func (r *authLogRepository) GetByAccessToken(ctx context.Context, token string) (*pkg.AuthLog, error) {
 	var (
 		model = models.AuthLog{}
 		query = fmt.Sprintf(r.getMainSelectQuery(), "WHERE al.access_token=? AND al.is_active=1")
@@ -174,10 +174,10 @@ func (r *authLogRepository) GetByAccessToken(ctx context.Context, token string) 
 		return nil, err
 	}
 
-	return obj.(*user_service.AuthLog), nil
+	return obj.(*pkg.AuthLog), nil
 }
 
-func (r *authLogRepository) GetByRefreshToken(ctx context.Context, token string) (*user_service.AuthLog, error) {
+func (r *authLogRepository) GetByRefreshToken(ctx context.Context, token string) (*pkg.AuthLog, error) {
 	var (
 		model = models.AuthLog{}
 		query = fmt.Sprintf(r.getMainSelectQuery(), "WHERE al.refresh_token=? AND al.is_active=1")
@@ -207,7 +207,7 @@ func (r *authLogRepository) GetByRefreshToken(ctx context.Context, token string)
 		return nil, err
 	}
 
-	return obj.(*user_service.AuthLog), nil
+	return obj.(*pkg.AuthLog), nil
 }
 
 func (r *authLogRepository) getMainSelectQuery() string {
