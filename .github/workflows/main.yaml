@@ -36,6 +36,7 @@ jobs:
           GO111MODULE: on
           MYSQL_DSN: root:root@tcp(localhost:3306)/lot_user_test?parseTime=true
           ACCESS_TOKEN_SECRET: secret
+          CENTRIFUGO_SECRET: secret
           TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           GOPRIVATE: "github.com/lotproject"
         run: git config --global --add url."https://pr0head:${TOKEN}@github.com/".insteadOf "https://github.com/" && go test ./internal/... -coverprofile=coverage.txt -covermode=atomic
