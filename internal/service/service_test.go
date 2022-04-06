@@ -3,6 +3,7 @@ package service
 import (
 	"database/sql"
 	"errors"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/lotproject/user-service/config"
 	"github.com/lotproject/user-service/pkg"
 	microErrors "github.com/micro/go-micro/errors"
@@ -99,11 +100,11 @@ func (suite *ServiceTestSuite) Test_buildGetAuthLogError_InternalServerError() {
 }
 
 func (suite *ServiceTestSuite) Test_createJwtToken_InvalidAlg() {
-	assert.Panics(suite.T(), func() { _, _ = createJwtToken("user_id", 10, "", "") })
+	assert.Panics(suite.T(), func() { _, _ = createJwtToken("user_id", 10, nil, "") })
 }
 
 func (suite *ServiceTestSuite) Test_createJwtToken() {
-	token, err := createJwtToken("user_id", 0, "HS256", "")
+	token, err := createJwtToken("user_id", 0, jwt.SigningMethodHS256, "")
 	assert.NoError(suite.T(), err)
 	assert.NotEmpty(suite.T(), token)
 }
