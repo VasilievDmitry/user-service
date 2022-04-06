@@ -40,13 +40,18 @@ func (s *Service) Ping(
 }
 
 func (s *Service) convertUserToProfile(user *pkg.User) *pkg.UserProfile {
-	return &pkg.UserProfile{
-		Id:             user.Id,
-		Login:          user.Login,
-		Username:       user.Username,
-		IsActive:       user.IsActive,
-		EmailConfirmed: user.EmailConfirmed,
+	centrifugoToken, _ := createJwtToken(user.Id, s.cfg.RefreshTokenLifetime, jwt.SigningMethodHS256, s.cfg.CentrifugoSecret)
+
+	profile := &pkg.UserProfile{
+		Id:              user.Id,
+		Login:           user.Login,
+		Username:        user.Username,
+		IsActive:        user.IsActive,
+		EmailConfirmed:  user.EmailConfirmed,
+		CentrifugoToken: centrifugoToken,
 	}
+
+	return profile
 }
 
 func (s *Service) buildGetUserError(err error) error {
@@ -73,12 +78,12 @@ func (s *Service) buildGetAuthLogError(err error) error {
 	return errors.InternalServerError(pkg.ServiceName, pkg.ErrorInternalError)
 }
 
-func createJwtToken(userId string, lifeTime int, signingMethod, secret string) (string, error) {
-	accessToken := &pkg.AccessToken{
+func createJwtToken(userId string, lifeTime int, signingMethod jwt.SigningMethod, secret string) (string, error) {
+	claims := &jwt.StandardClaims{
 		ExpiresAt: time.Now().Add(time.Hour * time.Duration(lifeTime)).Unix(),
 		Subject:   userId,
 	}
-	token := jwt.NewWithClaims(jwt.GetSigningMethod(signingMethod), accessToken)
+	token := jwt.NewWithClaims(signingMethod, claims)
 	tokenString, err := token.SignedString([]byte(secret))
 
 	if err != nil {

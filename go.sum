@@ -304,16 +304,8 @@ github.com/lotproject/go-helpers/log v0.0.0-20220223094055-21a0af1e4859 h1:WZ8eb
 github.com/lotproject/go-helpers/log v0.0.0-20220223094055-21a0af1e4859/go.mod h1:emERIO0pJidZoq/ghNwhm9UiCYCnsweqjtSzXoJSzXM=
 github.com/lotproject/go-helpers/random v0.0.0-20220223094055-21a0af1e4859 h1:wmFG6HLpN282omO5c7v8m6nCHkEwDPmAS9YHqnZeXfQ=
 github.com/lotproject/go-helpers/random v0.0.0-20220223094055-21a0af1e4859/go.mod h1:0dZrJ9fhO4GoNPRN6guZGpNgz/U+Lx3p7fiqU3Cr2As=
-github.com/lotproject/go-proto/go/user_service v0.0.0-20220225162009-dc5f5e59888e h1:iAsr1xt+jSJOhTwodwKlrbjPtSgyDr81sVQawgn/Coc=
-github.com/lotproject/go-proto/go/user_service v0.0.0-20220225162009-dc5f5e59888e/go.mod h1:ettxl3MaEWrQsxlFShwduXS5b50pdtkMl7Oh13g2QfY=
-github.com/lotproject/go-proto/go/user_service v0.0.0-20220226160207-d6b910f7745f h1:TVtMr5BiZ8XSJ61zyLLZI/8rE/w2Jo/CUcdpgPYtV9Q=
-github.com/lotproject/go-proto/go/user_service v0.0.0-20220226160207-d6b910f7745f/go.mod h1:ettxl3MaEWrQsxlFShwduXS5b50pdtkMl7Oh13g2QfY=
-github.com/lotproject/go-proto/go/user_service v0.0.0-20220227142258-67a3d24c1949 h1:oFaw3CP4yizZvvme4w+phPmteA3qy0cD/W4TEdJQtak=
-github.com/lotproject/go-proto/go/user_service v0.0.0-20220227142258-67a3d24c1949/go.mod h1:ettxl3MaEWrQsxlFShwduXS5b50pdtkMl7Oh13g2QfY=
-github.com/lotproject/go-proto/go/user_service v0.0.0-20220308052520-11a65006454b h1:5NJ3oEJBdc4Vj3itqKOASOOwf6z/lc3Tv1ewk4g7THg=
-github.com/lotproject/go-proto/go/user_service v0.0.0-20220308052520-11a65006454b/go.mod h1:ettxl3MaEWrQsxlFShwduXS5b50pdtkMl7Oh13g2QfY=
-github.com/lotproject/user-service/pkg v0.0.0-20220319081831-7468898cf6a0 h1:M3oQ/7k4n5uIFV115AnDXjrD2en5Jh5Fr2zTupqH1kY=
-github.com/lotproject/user-service/pkg v0.0.0-20220319081831-7468898cf6a0/go.mod h1:gXGLagwmaHrNY+zZbRsohlhu4FYm8joMiVpRBRVbjSY=
+github.com/lotproject/user-service/pkg v0.0.0-20220403025324-6a76b42645da h1:O0N8GzeFTWOQ7MsNODIOoW1t9abMlWT4NvXZz8uhqYU=
+github.com/lotproject/user-service/pkg v0.0.0-20220403025324-6a76b42645da/go.mod h1:4yl7WGA2Q9uUpFB1bApLFRdNn+c0WjOrVyj2Mooo6Qo=
 github.com/mattn/go-isatty v0.0.3/go.mod h1:M+lRXTBqGeGNdLjl/ufCoiOlB5xdOkqRJdNxMWT7Zi4=
 github.com/mattn/go-runewidth v0.0.2/go.mod h1:LwmH8dsx7+W8Uxz3IHJYH5QSwggIsqBzpuz5H//U1FU=
 github.com/mattn/go-runewidth v0.0.4/go.mod h1:LwmH8dsx7+W8Uxz3IHJYH5QSwggIsqBzpuz5H//U1FU=
@@ -372,7 +364,6 @@ github.com/olekukonko/tablewriter v0.0.1/go.mod h1:vsDQFd/mU46D+Z4whnwzcISnGGzXW
 github.com/onsi/ginkgo v1.6.0/go.mod h1:lLunBs/Ym6LB5Z9jYTR76FiuTmxDTDusOGeTQH+WWjE=
 github.com/onsi/ginkgo v1.7.0 h1:WSHQ+IS43OoUrWtD1/bbclrwK8TTH5hzp+umCiuxHgs=
 github.com/onsi/ginkgo v1.7.0/go.mod h1:lLunBs/Ym6LB5Z9jYTR76FiuTmxDTDusOGeTQH+WWjE=
-github.com/onsi/gomega v1.4.3 h1:RE1xgDvH7imwFD45h+u2SgIfERHlS2yNG4DObb5BSKU=
 github.com/onsi/gomega v1.4.3/go.mod h1:ex+gbHU/CVuBBDIJjb2X0qEXbFg53c61hWP/1CpauHY=
 github.com/onsi/gomega v1.7.0 h1:XPnZz8VVBHjVsy1vzJmRwIcSwiUO+JFfrv/xGiigmME=
 github.com/onsi/gomega v1.7.0/go.mod h1:ex+gbHU/CVuBBDIJjb2X0qEXbFg53c61hWP/1CpauHY=

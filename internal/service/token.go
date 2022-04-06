@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/lotproject/go-helpers/hash"
 	"github.com/lotproject/go-helpers/random"
@@ -27,7 +28,7 @@ func (s *Service) CreateAuthToken(
 	accessToken, err := createJwtToken(
 		user.Id,
 		s.cfg.AccessTokenLifetime,
-		s.cfg.AccessTokenSigningMethod,
+		jwt.SigningMethodHS256,
 		s.cfg.AccessTokenSecret,
 	)
 
@@ -83,7 +84,7 @@ func (s *Service) RefreshAccessToken(
 	accessToken, err := createJwtToken(
 		authLog.User.Id,
 		s.cfg.AccessTokenLifetime,
-		s.cfg.AccessTokenSigningMethod,
+		jwt.SigningMethodHS256,
 		s.cfg.AccessTokenSecret,
 	)
 

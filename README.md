@@ -22,7 +22,6 @@
 | REFRESH_TOKEN_LIFETIME      |          | 365            | Время жизни refresh-токена (дней)                                                           |
 | ACCESS_TOKEN_LIFETIME       |          | 3              | Время жизни access-токена (часов)                                                           |
 | ACCESS_TOKEN_SECRET         | *        |                | Серкертный ключ для подписи токенов                                                         |
-| ACCESS_TOKEN_SIGNING_METHOD |          | HS256          | Алгоритм хэширования токенов                                                                |
 | MICRO_TRANSPORT             |          | http           | Транспорт общения микросервисов. Доступные значения: http, grpc                             |
 | MICRO_REGISTRY              |          | mdns           | Discovery-сервис для микросервисов. Доступные занчения: etcd, mdns                          |
 | MICRO_REGISTRY_ADDRESS      |          |                | Хост и порт discovery-сервиса. Можно использовать множественные значения с разделителем `;` |
