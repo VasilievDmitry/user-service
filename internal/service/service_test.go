@@ -35,12 +35,6 @@ func (suite *ServiceTestSuite) SetupSuite() {
 	suite.service = NewService(nil, suite.cfg, log)
 }
 
-func (suite *ServiceTestSuite) SetupTest() {
-}
-
-func (suite *ServiceTestSuite) TearDownTest() {
-}
-
 func (suite *ServiceTestSuite) Test_NewService() {
 	srv := NewService(nil, nil, nil)
 	assert.IsType(suite.T(), (*Service)(nil), srv)
