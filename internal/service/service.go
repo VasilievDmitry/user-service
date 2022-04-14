@@ -19,6 +19,7 @@ type Service struct {
 	repositories *repository.Repositories
 }
 
+// NewService
 func NewService(
 	repositories *repository.Repositories,
 	cfg *config.Config,
