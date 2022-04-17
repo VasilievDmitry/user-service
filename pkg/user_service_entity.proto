@@ -41,6 +41,8 @@ message UserProfile {
   bool is_active = 5;
   // @inject_tag: json:"centrifugo_token"
   string centrifugo_token = 6;
+  // @inject_tag: json:"-"
+  string centrifugo_channel = 7;
 }
 
 message AuthLog {
