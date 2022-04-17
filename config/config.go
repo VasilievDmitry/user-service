@@ -24,7 +24,8 @@ type Config struct {
 	AccessTokenLifetime  int    `envconfig:"ACCESS_TOKEN_LIFETIME" required:"false" default:"3"`
 	AccessTokenSecret    string `envconfig:"ACCESS_TOKEN_SECRET" required:"true"`
 
-	CentrifugoSecret string `envconfig:"CENTRIFUGO_SECRET" required:"true"`
+	CentrifugoSecret      string `envconfig:"CENTRIFUGO_SECRET" required:"true"`
+	CentrifugoUserChannel string `envconfig:"CENTRIFUGO_USER_CHANNEL" default:"lot:user#%s"`
 }
 
 // NewConfig returns actual config instance

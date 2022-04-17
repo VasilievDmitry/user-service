@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/golang/protobuf/ptypes/empty"
 	dbHelper "github.com/lotproject/go-helpers/db"
@@ -44,12 +45,13 @@ func (s *Service) convertUserToProfile(user *pkg.User) *pkg.UserProfile {
 	centrifugoToken, _ := createJwtToken(user.Id, s.cfg.RefreshTokenLifetime, jwt.SigningMethodHS256, s.cfg.CentrifugoSecret)
 
 	profile := &pkg.UserProfile{
-		Id:              user.Id,
-		Login:           user.Login,
-		Username:        user.Username,
-		IsActive:        user.IsActive,
-		EmailConfirmed:  user.EmailConfirmed,
-		CentrifugoToken: centrifugoToken,
+		Id:                user.Id,
+		Login:             user.Login,
+		Username:          user.Username,
+		IsActive:          user.IsActive,
+		EmailConfirmed:    user.EmailConfirmed,
+		CentrifugoToken:   centrifugoToken,
+		CentrifugoChannel: fmt.Sprintf(s.cfg.CentrifugoUserChannel, user.Id),
 	}
 
 	return profile
