@@ -43,6 +43,15 @@ message UserProfile {
   string centrifugo_token = 6;
   // @inject_tag: json:"-"
   string centrifugo_channel = 7;
+  // @inject_tag: json:"game_servers"
+  repeated GameServer game_servers = 8;
+}
+
+message GameServer {
+  // @inject_tag: json:"id"
+  string id = 1;
+  // @inject_tag: json:"name"
+  string name = 2;
 }
 
 message AuthLog {
