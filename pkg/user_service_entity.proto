@@ -37,14 +37,12 @@ message UserProfile {
   string username = 3;
   // @inject_tag: json:"email_confirmed"
   bool email_confirmed = 4;
-  // @inject_tag: json:"is_active"
-  bool is_active = 5;
   // @inject_tag: json:"centrifugo_token"
-  string centrifugo_token = 6;
+  string centrifugo_token = 5;
   // @inject_tag: json:"-"
-  string centrifugo_channel = 7;
+  string centrifugo_channel = 6;
   // @inject_tag: json:"game_servers"
-  repeated GameServer game_servers = 8;
+  repeated GameServer game_servers = 7;
 }
 
 message GameServer {
