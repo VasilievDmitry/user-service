@@ -8,6 +8,7 @@ import (
 	"github.com/InVisionApp/go-health/v2/handlers"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
+	gameService "github.com/lotproject/game-service/pkg"
 	"github.com/lotproject/go-helpers/db"
 	"github.com/lotproject/go-helpers/log"
 	"github.com/lotproject/user-service/config"
@@ -27,13 +28,14 @@ import (
 
 // Application is application entry point.
 type Application struct {
-	cfg          *config.Config
-	log          *zap.Logger
-	database     *sqlx.DB
-	service      *service.Service
-	micro        micro.Service
-	healthServer *http.Server
-	healthRouter *http.ServeMux
+	cfg               *config.Config
+	log               *zap.Logger
+	database          *sqlx.DB
+	service           *service.Service
+	micro             micro.Service
+	gameServiceClient gameService.GameService
+	healthServer      *http.Server
+	healthRouter      *http.ServeMux
 }
 
 // NewApplication create new Application.
@@ -51,6 +53,7 @@ func NewApplication() (app *Application) {
 
 	app.service = service.NewService(
 		repository.InitRepositories(app.database, app.log),
+		app.gameServiceClient,
 		app.cfg,
 		app.log,
 	)
@@ -173,6 +176,8 @@ func (app *Application) initMicroServices() {
 
 	app.micro = micro.NewService(options...)
 	app.micro.Init()
+
+	app.gameServiceClient = gameService.NewGameService(gameService.ServiceName, app.micro.Client())
 
 	app.log.Info("Micro service initialization successfully...")
 }

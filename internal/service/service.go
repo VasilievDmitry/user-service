@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/golang/protobuf/ptypes/empty"
+	gameService "github.com/lotproject/game-service/pkg"
 	dbHelper "github.com/lotproject/go-helpers/db"
 	"github.com/lotproject/user-service/config"
 	"github.com/lotproject/user-service/internal/repository"
@@ -18,16 +19,19 @@ type Service struct {
 	cfg          *config.Config
 	log          *zap.Logger
 	repositories *repository.Repositories
+	gameService  gameService.GameService
 }
 
 // NewService
 func NewService(
 	repositories *repository.Repositories,
+	gameService gameService.GameService,
 	cfg *config.Config,
 	log *zap.Logger,
 ) *Service {
 	return &Service{
 		repositories: repositories,
+		gameService:  gameService,
 		cfg:          cfg,
 		log:          log,
 	}
@@ -44,6 +48,25 @@ func (s *Service) Ping(
 func (s *Service) convertUserToProfile(user *pkg.User) *pkg.UserProfile {
 	centrifugoToken, _ := createJwtToken(user.Id, s.cfg.RefreshTokenLifetime, jwt.SigningMethodHS256, s.cfg.CentrifugoSecret)
 
+	servers, err := s.gameService.GetUserServers(context.TODO(), &gameService.GetUserServersRequest{UserId: user.Id})
+	if err != nil {
+		s.log.Error(
+			"Unable to get server list for user profile",
+			zap.Error(err),
+		)
+	}
+
+	var serverList []*pkg.GameServer
+
+	if servers != nil && len(servers.List) > 0 {
+		for _, server := range serverList {
+			serverList = append(serverList, &pkg.GameServer{
+				Id:   server.Id,
+				Name: server.Name,
+			})
+		}
+	}
+
 	profile := &pkg.UserProfile{
 		Id:                user.Id,
 		Login:             user.Login,
@@ -52,6 +75,7 @@ func (s *Service) convertUserToProfile(user *pkg.User) *pkg.UserProfile {
 		EmailConfirmed:    user.EmailConfirmed,
 		CentrifugoToken:   centrifugoToken,
 		CentrifugoChannel: fmt.Sprintf(s.cfg.CentrifugoUserChannel, user.Id),
+		GameServers:       serverList,
 	}
 
 	return profile
