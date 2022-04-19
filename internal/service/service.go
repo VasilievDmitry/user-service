@@ -71,7 +71,6 @@ func (s *Service) convertUserToProfile(user *pkg.User) *pkg.UserProfile {
 		Id:                user.Id,
 		Login:             user.Login,
 		Username:          user.Username,
-		IsActive:          user.IsActive,
 		EmailConfirmed:    user.EmailConfirmed,
 		CentrifugoToken:   centrifugoToken,
 		CentrifugoChannel: fmt.Sprintf(s.cfg.CentrifugoUserChannel, user.Id),
