@@ -167,6 +167,10 @@ func (app *Application) initMicroServices() {
 		}),
 	}
 
+	if os.Getenv("MICRO_SERVER_NAME") == "" {
+		os.Setenv("MICRO_SERVER_NAME", pkg.ServiceName)
+	}
+
 	app.micro = micro.NewService(options...)
 	app.micro.Init()
 
