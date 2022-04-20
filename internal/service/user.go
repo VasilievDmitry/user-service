@@ -7,7 +7,6 @@ import (
 	"github.com/lotproject/go-helpers/random"
 	"github.com/lotproject/user-service/pkg"
 	"github.com/micro/go-micro/errors"
-	"go.uber.org/zap"
 	"strconv"
 )
 
@@ -61,7 +60,7 @@ func (s *Service) GetUserByAccessToken(
 	}
 
 	res.UserProfile = s.convertUserToProfile(user)
-	s.log.Info("GetUserByAccessToken", zap.Any("profile", res.UserProfile))
+
 	return nil
 }
 
