@@ -10,12 +10,12 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/jmoiron/sqlx v1.3.4
 	github.com/kelseyhightower/envconfig v1.4.0
-	github.com/lotproject/game-service/pkg v0.0.0-20220419045839-a78768287ad4 // indirect
+	github.com/lotproject/game-service/pkg v0.0.0-20220419045839-a78768287ad4
 	github.com/lotproject/go-helpers/db v0.0.0-20220223094055-21a0af1e4859
 	github.com/lotproject/go-helpers/hash v0.0.0-20220223094055-21a0af1e4859
 	github.com/lotproject/go-helpers/log v0.0.0-20220223094055-21a0af1e4859
 	github.com/lotproject/go-helpers/random v0.0.0-20220223094055-21a0af1e4859
-	github.com/lotproject/user-service/pkg v0.0.0-20220419140526-26e784728191
+	github.com/lotproject/user-service/pkg v0.0.0-20220420184741-98c89215a2a6
 	github.com/micro/go-micro v1.18.0
 	github.com/natefinch/lumberjack v2.0.0+incompatible
 	github.com/prometheus/client_golang v1.7.1
