@@ -6,7 +6,7 @@ package pkg
 import (
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
-	empty "github.com/golang/protobuf/ptypes/empty"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	math "math"
 )
 
@@ -35,20 +35,20 @@ var _ server.Option
 // Client API for UserService service
 
 type UserService interface {
-	Ping(ctx context.Context, in *empty.Empty, opts ...client.CallOption) (*empty.Empty, error)
+	Ping(ctx context.Context, in *emptypb.Empty, opts ...client.CallOption) (*emptypb.Empty, error)
 	CreateUserByWallet(ctx context.Context, in *CreateUserByWalletRequest, opts ...client.CallOption) (*ResponseWithUserProfile, error)
-	VerifyPassword(ctx context.Context, in *VerifyPasswordRequest, opts ...client.CallOption) (*empty.Empty, error)
-	SetUsername(ctx context.Context, in *SetUsernameRequest, opts ...client.CallOption) (*empty.Empty, error)
+	VerifyPassword(ctx context.Context, in *VerifyPasswordRequest, opts ...client.CallOption) (*emptypb.Empty, error)
+	SetUsername(ctx context.Context, in *SetUsernameRequest, opts ...client.CallOption) (*emptypb.Empty, error)
 	SetLogin(ctx context.Context, in *SetLoginRequest, opts ...client.CallOption) (*SetLoginResponse, error)
-	SetPassword(ctx context.Context, in *SetPasswordRequest, opts ...client.CallOption) (*empty.Empty, error)
-	ConfirmLogin(ctx context.Context, in *ConfirmLoginRequest, opts ...client.CallOption) (*empty.Empty, error)
+	SetPassword(ctx context.Context, in *SetPasswordRequest, opts ...client.CallOption) (*emptypb.Empty, error)
+	ConfirmLogin(ctx context.Context, in *ConfirmLoginRequest, opts ...client.CallOption) (*emptypb.Empty, error)
 	CreatePasswordRecoveryCode(ctx context.Context, in *CreatePasswordRecoveryCodeRequest, opts ...client.CallOption) (*CreatePasswordRecoveryCodeResponse, error)
-	UsePasswordRecoveryCode(ctx context.Context, in *UsePasswordRecoveryCodeRequest, opts ...client.CallOption) (*empty.Empty, error)
+	UsePasswordRecoveryCode(ctx context.Context, in *UsePasswordRecoveryCodeRequest, opts ...client.CallOption) (*emptypb.Empty, error)
 	GetUserById(ctx context.Context, in *GetUserByIdRequest, opts ...client.CallOption) (*ResponseWithUserProfile, error)
 	GetUserByLogin(ctx context.Context, in *GetUserByLoginRequest, opts ...client.CallOption) (*ResponseWithUserProfile, error)
 	GetUserByAccessToken(ctx context.Context, in *GetUserByAccessTokenRequest, opts ...client.CallOption) (*ResponseWithUserProfile, error)
 	CreateAuthToken(ctx context.Context, in *CreateAuthTokenRequest, opts ...client.CallOption) (*ResponseWithAuthToken, error)
-	DeactivateAuthToken(ctx context.Context, in *DeactivateAuthTokenRequest, opts ...client.CallOption) (*empty.Empty, error)
+	DeactivateAuthToken(ctx context.Context, in *DeactivateAuthTokenRequest, opts ...client.CallOption) (*emptypb.Empty, error)
 	RefreshAccessToken(ctx context.Context, in *RefreshAccessTokenRequest, opts ...client.CallOption) (*ResponseWithAuthToken, error)
 }
 
@@ -70,9 +70,9 @@ func NewUserService(name string, c client.Client) UserService {
 	}
 }
 
-func (c *userService) Ping(ctx context.Context, in *empty.Empty, opts ...client.CallOption) (*empty.Empty, error) {
+func (c *userService) Ping(ctx context.Context, in *emptypb.Empty, opts ...client.CallOption) (*emptypb.Empty, error) {
 	req := c.c.NewRequest(c.name, "UserService.Ping", in)
-	out := new(empty.Empty)
+	out := new(emptypb.Empty)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -90,9 +90,9 @@ func (c *userService) CreateUserByWallet(ctx context.Context, in *CreateUserByWa
 	return out, nil
 }
 
-func (c *userService) VerifyPassword(ctx context.Context, in *VerifyPasswordRequest, opts ...client.CallOption) (*empty.Empty, error) {
+func (c *userService) VerifyPassword(ctx context.Context, in *VerifyPasswordRequest, opts ...client.CallOption) (*emptypb.Empty, error) {
 	req := c.c.NewRequest(c.name, "UserService.VerifyPassword", in)
-	out := new(empty.Empty)
+	out := new(emptypb.Empty)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -100,9 +100,9 @@ func (c *userService) VerifyPassword(ctx context.Context, in *VerifyPasswordRequ
 	return out, nil
 }
 
-func (c *userService) SetUsername(ctx context.Context, in *SetUsernameRequest, opts ...client.CallOption) (*empty.Empty, error) {
+func (c *userService) SetUsername(ctx context.Context, in *SetUsernameRequest, opts ...client.CallOption) (*emptypb.Empty, error) {
 	req := c.c.NewRequest(c.name, "UserService.SetUsername", in)
-	out := new(empty.Empty)
+	out := new(emptypb.Empty)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -120,9 +120,9 @@ func (c *userService) SetLogin(ctx context.Context, in *SetLoginRequest, opts ..
 	return out, nil
 }
 
-func (c *userService) SetPassword(ctx context.Context, in *SetPasswordRequest, opts ...client.CallOption) (*empty.Empty, error) {
+func (c *userService) SetPassword(ctx context.Context, in *SetPasswordRequest, opts ...client.CallOption) (*emptypb.Empty, error) {
 	req := c.c.NewRequest(c.name, "UserService.SetPassword", in)
-	out := new(empty.Empty)
+	out := new(emptypb.Empty)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -130,9 +130,9 @@ func (c *userService) SetPassword(ctx context.Context, in *SetPasswordRequest, o
 	return out, nil
 }
 
-func (c *userService) ConfirmLogin(ctx context.Context, in *ConfirmLoginRequest, opts ...client.CallOption) (*empty.Empty, error) {
+func (c *userService) ConfirmLogin(ctx context.Context, in *ConfirmLoginRequest, opts ...client.CallOption) (*emptypb.Empty, error) {
 	req := c.c.NewRequest(c.name, "UserService.ConfirmLogin", in)
-	out := new(empty.Empty)
+	out := new(emptypb.Empty)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -150,9 +150,9 @@ func (c *userService) CreatePasswordRecoveryCode(ctx context.Context, in *Create
 	return out, nil
 }
 
-func (c *userService) UsePasswordRecoveryCode(ctx context.Context, in *UsePasswordRecoveryCodeRequest, opts ...client.CallOption) (*empty.Empty, error) {
+func (c *userService) UsePasswordRecoveryCode(ctx context.Context, in *UsePasswordRecoveryCodeRequest, opts ...client.CallOption) (*emptypb.Empty, error) {
 	req := c.c.NewRequest(c.name, "UserService.UsePasswordRecoveryCode", in)
-	out := new(empty.Empty)
+	out := new(emptypb.Empty)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -200,9 +200,9 @@ func (c *userService) CreateAuthToken(ctx context.Context, in *CreateAuthTokenRe
 	return out, nil
 }
 
-func (c *userService) DeactivateAuthToken(ctx context.Context, in *DeactivateAuthTokenRequest, opts ...client.CallOption) (*empty.Empty, error) {
+func (c *userService) DeactivateAuthToken(ctx context.Context, in *DeactivateAuthTokenRequest, opts ...client.CallOption) (*emptypb.Empty, error) {
 	req := c.c.NewRequest(c.name, "UserService.DeactivateAuthToken", in)
-	out := new(empty.Empty)
+	out := new(emptypb.Empty)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -223,39 +223,39 @@ func (c *userService) RefreshAccessToken(ctx context.Context, in *RefreshAccessT
 // Server API for UserService service
 
 type UserServiceHandler interface {
-	Ping(context.Context, *empty.Empty, *empty.Empty) error
+	Ping(context.Context, *emptypb.Empty, *emptypb.Empty) error
 	CreateUserByWallet(context.Context, *CreateUserByWalletRequest, *ResponseWithUserProfile) error
-	VerifyPassword(context.Context, *VerifyPasswordRequest, *empty.Empty) error
-	SetUsername(context.Context, *SetUsernameRequest, *empty.Empty) error
+	VerifyPassword(context.Context, *VerifyPasswordRequest, *emptypb.Empty) error
+	SetUsername(context.Context, *SetUsernameRequest, *emptypb.Empty) error
 	SetLogin(context.Context, *SetLoginRequest, *SetLoginResponse) error
-	SetPassword(context.Context, *SetPasswordRequest, *empty.Empty) error
-	ConfirmLogin(context.Context, *ConfirmLoginRequest, *empty.Empty) error
+	SetPassword(context.Context, *SetPasswordRequest, *emptypb.Empty) error
+	ConfirmLogin(context.Context, *ConfirmLoginRequest, *emptypb.Empty) error
 	CreatePasswordRecoveryCode(context.Context, *CreatePasswordRecoveryCodeRequest, *CreatePasswordRecoveryCodeResponse) error
-	UsePasswordRecoveryCode(context.Context, *UsePasswordRecoveryCodeRequest, *empty.Empty) error
+	UsePasswordRecoveryCode(context.Context, *UsePasswordRecoveryCodeRequest, *emptypb.Empty) error
 	GetUserById(context.Context, *GetUserByIdRequest, *ResponseWithUserProfile) error
 	GetUserByLogin(context.Context, *GetUserByLoginRequest, *ResponseWithUserProfile) error
 	GetUserByAccessToken(context.Context, *GetUserByAccessTokenRequest, *ResponseWithUserProfile) error
 	CreateAuthToken(context.Context, *CreateAuthTokenRequest, *ResponseWithAuthToken) error
-	DeactivateAuthToken(context.Context, *DeactivateAuthTokenRequest, *empty.Empty) error
+	DeactivateAuthToken(context.Context, *DeactivateAuthTokenRequest, *emptypb.Empty) error
 	RefreshAccessToken(context.Context, *RefreshAccessTokenRequest, *ResponseWithAuthToken) error
 }
 
 func RegisterUserServiceHandler(s server.Server, hdlr UserServiceHandler, opts ...server.HandlerOption) error {
 	type userService interface {
-		Ping(ctx context.Context, in *empty.Empty, out *empty.Empty) error
+		Ping(ctx context.Context, in *emptypb.Empty, out *emptypb.Empty) error
 		CreateUserByWallet(ctx context.Context, in *CreateUserByWalletRequest, out *ResponseWithUserProfile) error
-		VerifyPassword(ctx context.Context, in *VerifyPasswordRequest, out *empty.Empty) error
-		SetUsername(ctx context.Context, in *SetUsernameRequest, out *empty.Empty) error
+		VerifyPassword(ctx context.Context, in *VerifyPasswordRequest, out *emptypb.Empty) error
+		SetUsername(ctx context.Context, in *SetUsernameRequest, out *emptypb.Empty) error
 		SetLogin(ctx context.Context, in *SetLoginRequest, out *SetLoginResponse) error
-		SetPassword(ctx context.Context, in *SetPasswordRequest, out *empty.Empty) error
-		ConfirmLogin(ctx context.Context, in *ConfirmLoginRequest, out *empty.Empty) error
+		SetPassword(ctx context.Context, in *SetPasswordRequest, out *emptypb.Empty) error
+		ConfirmLogin(ctx context.Context, in *ConfirmLoginRequest, out *emptypb.Empty) error
 		CreatePasswordRecoveryCode(ctx context.Context, in *CreatePasswordRecoveryCodeRequest, out *CreatePasswordRecoveryCodeResponse) error
-		UsePasswordRecoveryCode(ctx context.Context, in *UsePasswordRecoveryCodeRequest, out *empty.Empty) error
+		UsePasswordRecoveryCode(ctx context.Context, in *UsePasswordRecoveryCodeRequest, out *emptypb.Empty) error
 		GetUserById(ctx context.Context, in *GetUserByIdRequest, out *ResponseWithUserProfile) error
 		GetUserByLogin(ctx context.Context, in *GetUserByLoginRequest, out *ResponseWithUserProfile) error
 		GetUserByAccessToken(ctx context.Context, in *GetUserByAccessTokenRequest, out *ResponseWithUserProfile) error
 		CreateAuthToken(ctx context.Context, in *CreateAuthTokenRequest, out *ResponseWithAuthToken) error
-		DeactivateAuthToken(ctx context.Context, in *DeactivateAuthTokenRequest, out *empty.Empty) error
+		DeactivateAuthToken(ctx context.Context, in *DeactivateAuthTokenRequest, out *emptypb.Empty) error
 		RefreshAccessToken(ctx context.Context, in *RefreshAccessTokenRequest, out *ResponseWithAuthToken) error
 	}
 	type UserService struct {
@@ -269,7 +269,7 @@ type userServiceHandler struct {
 	UserServiceHandler
 }
 
-func (h *userServiceHandler) Ping(ctx context.Context, in *empty.Empty, out *empty.Empty) error {
+func (h *userServiceHandler) Ping(ctx context.Context, in *emptypb.Empty, out *emptypb.Empty) error {
 	return h.UserServiceHandler.Ping(ctx, in, out)
 }
 
@@ -277,11 +277,11 @@ func (h *userServiceHandler) CreateUserByWallet(ctx context.Context, in *CreateU
 	return h.UserServiceHandler.CreateUserByWallet(ctx, in, out)
 }
 
-func (h *userServiceHandler) VerifyPassword(ctx context.Context, in *VerifyPasswordRequest, out *empty.Empty) error {
+func (h *userServiceHandler) VerifyPassword(ctx context.Context, in *VerifyPasswordRequest, out *emptypb.Empty) error {
 	return h.UserServiceHandler.VerifyPassword(ctx, in, out)
 }
 
-func (h *userServiceHandler) SetUsername(ctx context.Context, in *SetUsernameRequest, out *empty.Empty) error {
+func (h *userServiceHandler) SetUsername(ctx context.Context, in *SetUsernameRequest, out *emptypb.Empty) error {
 	return h.UserServiceHandler.SetUsername(ctx, in, out)
 }
 
@@ -289,11 +289,11 @@ func (h *userServiceHandler) SetLogin(ctx context.Context, in *SetLoginRequest, 
 	return h.UserServiceHandler.SetLogin(ctx, in, out)
 }
 
-func (h *userServiceHandler) SetPassword(ctx context.Context, in *SetPasswordRequest, out *empty.Empty) error {
+func (h *userServiceHandler) SetPassword(ctx context.Context, in *SetPasswordRequest, out *emptypb.Empty) error {
 	return h.UserServiceHandler.SetPassword(ctx, in, out)
 }
 
-func (h *userServiceHandler) ConfirmLogin(ctx context.Context, in *ConfirmLoginRequest, out *empty.Empty) error {
+func (h *userServiceHandler) ConfirmLogin(ctx context.Context, in *ConfirmLoginRequest, out *emptypb.Empty) error {
 	return h.UserServiceHandler.ConfirmLogin(ctx, in, out)
 }
 
@@ -301,7 +301,7 @@ func (h *userServiceHandler) CreatePasswordRecoveryCode(ctx context.Context, in 
 	return h.UserServiceHandler.CreatePasswordRecoveryCode(ctx, in, out)
 }
 
-func (h *userServiceHandler) UsePasswordRecoveryCode(ctx context.Context, in *UsePasswordRecoveryCodeRequest, out *empty.Empty) error {
+func (h *userServiceHandler) UsePasswordRecoveryCode(ctx context.Context, in *UsePasswordRecoveryCodeRequest, out *emptypb.Empty) error {
 	return h.UserServiceHandler.UsePasswordRecoveryCode(ctx, in, out)
 }
 
@@ -321,7 +321,7 @@ func (h *userServiceHandler) CreateAuthToken(ctx context.Context, in *CreateAuth
 	return h.UserServiceHandler.CreateAuthToken(ctx, in, out)
 }
 
-func (h *userServiceHandler) DeactivateAuthToken(ctx context.Context, in *DeactivateAuthTokenRequest, out *empty.Empty) error {
+func (h *userServiceHandler) DeactivateAuthToken(ctx context.Context, in *DeactivateAuthTokenRequest, out *emptypb.Empty) error {
 	return h.UserServiceHandler.DeactivateAuthToken(ctx, in, out)
 }
 

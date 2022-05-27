@@ -43,6 +43,8 @@ message UserProfile {
   string centrifugo_channel = 6;
   // @inject_tag: json:"game_servers"
   repeated GameServer game_servers = 7;
+  // @inject_tag: json:"wallets"
+  repeated AuthProvider wallets = 8;
 }
 
 message GameServer {
