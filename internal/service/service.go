@@ -67,6 +67,25 @@ func (s *Service) convertUserToProfile(user *pkg.User) *pkg.UserProfile {
 		}
 	}
 
+	if servers != nil && len(servers.List) > 0 {
+		for _, server := range serverList {
+			serverList = append(serverList, &pkg.GameServer{
+				Id:   server.Id,
+				Name: server.Name,
+			})
+		}
+	}
+
+	var walletList []*pkg.AuthProvider
+
+	wallets, _ := s.repositories.AuthProvider.GetByUserId(context.TODO(), user.Id)
+	for _, wallet := range wallets {
+		walletList = append(walletList, &pkg.AuthProvider{
+			Provider: wallet.Provider,
+			Token:    wallet.Token,
+		})
+	}
+
 	profile := &pkg.UserProfile{
 		Id:                user.Id,
 		Login:             user.Login,
@@ -75,6 +94,7 @@ func (s *Service) convertUserToProfile(user *pkg.User) *pkg.UserProfile {
 		CentrifugoToken:   centrifugoToken,
 		CentrifugoChannel: fmt.Sprintf(s.cfg.CentrifugoUserChannel, user.Id),
 		GameServers:       serverList,
+		Wallets:           walletList,
 	}
 
 	return profile

@@ -23,6 +23,9 @@ type AuthProviderRepositoryInterface interface {
 
 	// GetByToken returns the user provider by token.
 	GetByToken(ctx context.Context, provider, token string) (*pkg.AuthProvider, error)
+
+	// GetByUserId returns the user provider by user identifier.
+	GetByUserId(ctx context.Context, provider string) ([]*pkg.AuthProvider, error)
 }
 
 // NewAuthProviderRepository create and return an object for working with the providers of user repository.
@@ -161,6 +164,43 @@ func (r *authProviderRepository) GetByToken(ctx context.Context, provider, token
 	}
 
 	return obj.(*pkg.AuthProvider), nil
+}
+
+func (r *authProviderRepository) GetByUserId(ctx context.Context, userId string) ([]*pkg.AuthProvider, error) {
+	var (
+		list  []*models.AuthProvider
+		query = fmt.Sprintf(r.getMainSelectQuery(), "WHERE user_id=?")
+	)
+
+	err := r.db.SelectContext(ctx, &list, query, userId)
+
+	if err != nil {
+		if err != sql.ErrNoRows {
+			r.logger.Error(
+				dbHelper.ErrorDatabaseQueryFailed,
+				zap.Error(err),
+				zap.Any(dbHelper.ErrorDatabaseFieldQuery, dbHelper.CleanQueryForLog(query)),
+			)
+		}
+		return nil, err
+	}
+
+	objs := make([]*pkg.AuthProvider, len(list))
+
+	for i, obj := range list {
+		v, err := r.mapper.MapModelToProto(obj)
+		if err != nil {
+			r.logger.Error(
+				dbHelper.ErrorDatabaseMapModelFailed,
+				zap.Error(err),
+				zap.Any(dbHelper.ErrorDatabaseFieldQuery, obj),
+			)
+			return nil, err
+		}
+		objs[i] = v.(*pkg.AuthProvider)
+	}
+
+	return objs, nil
 }
 
 func (r *authProviderRepository) getMainSelectQuery() string {
