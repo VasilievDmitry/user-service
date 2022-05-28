@@ -452,14 +452,14 @@ type AuthProvider struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// @inject_tag: json:"id"
-	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id"`
-	// @inject_tag: json:"user"
-	User *User `protobuf:"bytes,2,opt,name=user,proto3" json:"user"`
+	// @inject_tag: json:"omitempty,id"
+	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"omitempty,id"`
+	// @inject_tag: json:"omitempty,user"
+	User *User `protobuf:"bytes,2,opt,name=user,proto3" json:"omitempty,user"`
 	// @inject_tag: json:"provider"
 	Provider string `protobuf:"bytes,3,opt,name=provider,proto3" json:"provider"`
-	// @inject_tag: json:"-"
-	Token string `protobuf:"bytes,4,opt,name=token,proto3" json:"-"`
+	// @inject_tag: json:"token"
+	Token string `protobuf:"bytes,4,opt,name=token,proto3" json:"token"`
 	// @inject_tag: json:"-"
 	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=created_at,json=createdAt,proto3" json:"-"`
 	// @inject_tag: json:"-"

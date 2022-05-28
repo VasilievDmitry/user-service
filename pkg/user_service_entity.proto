@@ -78,13 +78,13 @@ message AuthLog {
 }
 
 message AuthProvider {
-  // @inject_tag: json:"id"
+  // @inject_tag: json:"omitempty,id"
   int64 id = 1;
-  // @inject_tag: json:"user"
+  // @inject_tag: json:"omitempty,user"
   User user = 2;
   // @inject_tag: json:"provider"
   string provider = 3;
-  // @inject_tag: json:"-"
+  // @inject_tag: json:"token"
   string token = 4;
   // @inject_tag: json:"-"
   google.protobuf.Timestamp created_at = 5;
