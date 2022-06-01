@@ -10,7 +10,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/jmoiron/sqlx v1.3.4
 	github.com/kelseyhightower/envconfig v1.4.0
-	github.com/lotproject/game-service/pkg v0.0.0-20220419045839-a78768287ad4
+	github.com/lotproject/game-service/pkg v0.0.0-20220601095101-080d1c48d90b
 	github.com/lotproject/go-helpers/db v0.0.0-20220223094055-21a0af1e4859
 	github.com/lotproject/go-helpers/hash v0.0.0-20220223094055-21a0af1e4859
 	github.com/lotproject/go-helpers/log v0.0.0-20220223094055-21a0af1e4859
@@ -19,7 +19,7 @@ require (
 	github.com/micro/go-micro v1.18.0
 	github.com/natefinch/lumberjack v2.0.0+incompatible
 	github.com/prometheus/client_golang v1.7.1
-	github.com/stretchr/testify v1.7.0
+	github.com/stretchr/testify v1.7.1
 	go.uber.org/zap v1.21.0
 	golang.org/x/crypto v0.0.0-20200221231518-2aa609cf4a9d
 	google.golang.org/protobuf v1.27.1
