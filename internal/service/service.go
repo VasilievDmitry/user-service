@@ -59,15 +59,13 @@ func (s *Service) convertUserToProfile(user *pkg.User) *pkg.UserProfile {
 	var serverList []*pkg.GameServer
 
 	if servers != nil && len(servers.List) > 0 {
-		for _, server := range serverList {
+		for _, server := range servers.List {
 			serverList = append(serverList, &pkg.GameServer{
 				Id:   server.Id,
 				Name: server.Name,
 			})
 		}
 	}
-
-	zap.L().Info("Profile server list", zap.Any("servers", servers), zap.Any("list", serverList))
 
 	if servers != nil && len(servers.List) > 0 {
 		for _, server := range serverList {
