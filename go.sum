@@ -310,6 +310,8 @@ github.com/lotproject/go-helpers/random v0.0.0-20220223094055-21a0af1e4859 h1:wm
 github.com/lotproject/go-helpers/random v0.0.0-20220223094055-21a0af1e4859/go.mod h1:0dZrJ9fhO4GoNPRN6guZGpNgz/U+Lx3p7fiqU3Cr2As=
 github.com/lotproject/user-service/pkg v0.0.0-20220528053456-63df333d4aac h1:awa+lV+NcmJd90nmxgvUOCWbJsSiIJwgIcFfA6oZNUM=
 github.com/lotproject/user-service/pkg v0.0.0-20220528053456-63df333d4aac/go.mod h1:HW9dYT5V7q+j0B/IyKdRyVZzefJXNLhIdR07FpKAHGc=
+github.com/lotproject/user-service/pkg v0.0.0-20221019054116-b7d90b2e2a86 h1:lDKIVfGOKacn966V4cJkSqIfxNx0AzdWqLKJFwc0cEo=
+github.com/lotproject/user-service/pkg v0.0.0-20221019054116-b7d90b2e2a86/go.mod h1:HW9dYT5V7q+j0B/IyKdRyVZzefJXNLhIdR07FpKAHGc=
 github.com/mattn/go-isatty v0.0.3/go.mod h1:M+lRXTBqGeGNdLjl/ufCoiOlB5xdOkqRJdNxMWT7Zi4=
 github.com/mattn/go-runewidth v0.0.2/go.mod h1:LwmH8dsx7+W8Uxz3IHJYH5QSwggIsqBzpuz5H//U1FU=
 github.com/mattn/go-runewidth v0.0.4/go.mod h1:LwmH8dsx7+W8Uxz3IHJYH5QSwggIsqBzpuz5H//U1FU=

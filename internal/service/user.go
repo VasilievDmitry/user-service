@@ -2,12 +2,13 @@ package service
 
 import (
 	"context"
+	"strconv"
+
 	"github.com/golang/protobuf/ptypes/empty"
 	dbHelper "github.com/lotproject/go-helpers/db"
 	"github.com/lotproject/go-helpers/random"
 	"github.com/lotproject/user-service/pkg"
 	"github.com/micro/go-micro/errors"
-	"strconv"
 )
 
 func (s *Service) GetUserById(
@@ -54,6 +55,28 @@ func (s *Service) GetUserByAccessToken(
 	}
 
 	user, err := s.repositories.User.GetById(ctx, authLog.User.Id)
+
+	if err != nil {
+		return s.buildGetUserError(err)
+	}
+
+	res.UserProfile = s.convertUserToProfile(user)
+
+	return nil
+}
+
+func (s *Service) GetUserByWallet(
+	ctx context.Context,
+	req *pkg.GetUserByWalletRequest,
+	res *pkg.ResponseWithUserProfile,
+) error {
+	authProvider, err := s.repositories.AuthProvider.GetByToken(ctx, req.Provider, req.Token)
+
+	if err != nil {
+		return s.buildGetAuthLogError(err)
+	}
+
+	user, err := s.repositories.User.GetById(ctx, authProvider.User.Id)
 
 	if err != nil {
 		return s.buildGetUserError(err)
