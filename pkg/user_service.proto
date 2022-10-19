@@ -19,6 +19,7 @@ service UserService {
   rpc GetUserById (GetUserByIdRequest) returns (ResponseWithUserProfile) {}
   rpc GetUserByLogin (GetUserByLoginRequest) returns (ResponseWithUserProfile) {}
   rpc GetUserByAccessToken (GetUserByAccessTokenRequest) returns (ResponseWithUserProfile) {}
+  rpc GetUserByWallet (GetUserByWalletRequest) returns (ResponseWithUserProfile) {}
   rpc CreateAuthToken (CreateAuthTokenRequest) returns (ResponseWithAuthToken) {}
   rpc DeactivateAuthToken (DeactivateAuthTokenRequest) returns (google.protobuf.Empty) {}
   rpc RefreshAccessToken (RefreshAccessTokenRequest) returns (ResponseWithAuthToken) {}
@@ -120,6 +121,11 @@ message GetUserByLoginRequest {
 message GetUserByAccessTokenRequest {
   // @inject_tag: validate:"required,len=165"
   string access_token = 1;
+}
+
+message GetUserByWalletRequest {
+  string token = 1;
+  string provider = 2;
 }
 
 message CreatePasswordRecoveryCodeResponse {

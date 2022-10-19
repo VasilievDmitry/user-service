@@ -47,6 +47,7 @@ type UserService interface {
 	GetUserById(ctx context.Context, in *GetUserByIdRequest, opts ...client.CallOption) (*ResponseWithUserProfile, error)
 	GetUserByLogin(ctx context.Context, in *GetUserByLoginRequest, opts ...client.CallOption) (*ResponseWithUserProfile, error)
 	GetUserByAccessToken(ctx context.Context, in *GetUserByAccessTokenRequest, opts ...client.CallOption) (*ResponseWithUserProfile, error)
+	GetUserByWallet(ctx context.Context, in *GetUserByWalletRequest, opts ...client.CallOption) (*ResponseWithUserProfile, error)
 	CreateAuthToken(ctx context.Context, in *CreateAuthTokenRequest, opts ...client.CallOption) (*ResponseWithAuthToken, error)
 	DeactivateAuthToken(ctx context.Context, in *DeactivateAuthTokenRequest, opts ...client.CallOption) (*emptypb.Empty, error)
 	RefreshAccessToken(ctx context.Context, in *RefreshAccessTokenRequest, opts ...client.CallOption) (*ResponseWithAuthToken, error)
@@ -190,6 +191,16 @@ func (c *userService) GetUserByAccessToken(ctx context.Context, in *GetUserByAcc
 	return out, nil
 }
 
+func (c *userService) GetUserByWallet(ctx context.Context, in *GetUserByWalletRequest, opts ...client.CallOption) (*ResponseWithUserProfile, error) {
+	req := c.c.NewRequest(c.name, "UserService.GetUserByWallet", in)
+	out := new(ResponseWithUserProfile)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *userService) CreateAuthToken(ctx context.Context, in *CreateAuthTokenRequest, opts ...client.CallOption) (*ResponseWithAuthToken, error) {
 	req := c.c.NewRequest(c.name, "UserService.CreateAuthToken", in)
 	out := new(ResponseWithAuthToken)
@@ -235,6 +246,7 @@ type UserServiceHandler interface {
 	GetUserById(context.Context, *GetUserByIdRequest, *ResponseWithUserProfile) error
 	GetUserByLogin(context.Context, *GetUserByLoginRequest, *ResponseWithUserProfile) error
 	GetUserByAccessToken(context.Context, *GetUserByAccessTokenRequest, *ResponseWithUserProfile) error
+	GetUserByWallet(context.Context, *GetUserByWalletRequest, *ResponseWithUserProfile) error
 	CreateAuthToken(context.Context, *CreateAuthTokenRequest, *ResponseWithAuthToken) error
 	DeactivateAuthToken(context.Context, *DeactivateAuthTokenRequest, *emptypb.Empty) error
 	RefreshAccessToken(context.Context, *RefreshAccessTokenRequest, *ResponseWithAuthToken) error
@@ -254,6 +266,7 @@ func RegisterUserServiceHandler(s server.Server, hdlr UserServiceHandler, opts .
 		GetUserById(ctx context.Context, in *GetUserByIdRequest, out *ResponseWithUserProfile) error
 		GetUserByLogin(ctx context.Context, in *GetUserByLoginRequest, out *ResponseWithUserProfile) error
 		GetUserByAccessToken(ctx context.Context, in *GetUserByAccessTokenRequest, out *ResponseWithUserProfile) error
+		GetUserByWallet(ctx context.Context, in *GetUserByWalletRequest, out *ResponseWithUserProfile) error
 		CreateAuthToken(ctx context.Context, in *CreateAuthTokenRequest, out *ResponseWithAuthToken) error
 		DeactivateAuthToken(ctx context.Context, in *DeactivateAuthTokenRequest, out *emptypb.Empty) error
 		RefreshAccessToken(ctx context.Context, in *RefreshAccessTokenRequest, out *ResponseWithAuthToken) error
@@ -315,6 +328,10 @@ func (h *userServiceHandler) GetUserByLogin(ctx context.Context, in *GetUserByLo
 
 func (h *userServiceHandler) GetUserByAccessToken(ctx context.Context, in *GetUserByAccessTokenRequest, out *ResponseWithUserProfile) error {
 	return h.UserServiceHandler.GetUserByAccessToken(ctx, in, out)
+}
+
+func (h *userServiceHandler) GetUserByWallet(ctx context.Context, in *GetUserByWalletRequest, out *ResponseWithUserProfile) error {
+	return h.UserServiceHandler.GetUserByWallet(ctx, in, out)
 }
 
 func (h *userServiceHandler) CreateAuthToken(ctx context.Context, in *CreateAuthTokenRequest, out *ResponseWithAuthToken) error {

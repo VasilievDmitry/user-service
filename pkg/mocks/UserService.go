@@ -261,6 +261,36 @@ func (_m *UserService) GetUserByLogin(ctx context.Context, in *pkg.GetUserByLogi
 	return r0, r1
 }
 
+// GetUserByWallet provides a mock function with given fields: ctx, in, opts
+func (_m *UserService) GetUserByWallet(ctx context.Context, in *pkg.GetUserByWalletRequest, opts ...client.CallOption) (*pkg.ResponseWithUserProfile, error) {
+	_va := make([]interface{}, len(opts))
+	for _i := range opts {
+		_va[_i] = opts[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, in)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	var r0 *pkg.ResponseWithUserProfile
+	if rf, ok := ret.Get(0).(func(context.Context, *pkg.GetUserByWalletRequest, ...client.CallOption) *pkg.ResponseWithUserProfile); ok {
+		r0 = rf(ctx, in, opts...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*pkg.ResponseWithUserProfile)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, *pkg.GetUserByWalletRequest, ...client.CallOption) error); ok {
+		r1 = rf(ctx, in, opts...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // Ping provides a mock function with given fields: ctx, in, opts
 func (_m *UserService) Ping(ctx context.Context, in *emptypb.Empty, opts ...client.CallOption) (*emptypb.Empty, error) {
 	_va := make([]interface{}, len(opts))
@@ -475,8 +505,6 @@ func (_m *UserService) VerifyPassword(ctx context.Context, in *pkg.VerifyPasswor
 func NewUserService(t testing.TB) *UserService {
 	mock := &UserService{}
 	mock.Mock.Test(t)
-
-	t.Cleanup(func() { mock.AssertExpectations(t) })
 
 	return mock
 }
