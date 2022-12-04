@@ -2,14 +2,15 @@ package pkg
 
 import (
 	"errors"
-	"github.com/dgrijalva/jwt-go"
 	"time"
+
+	"github.com/golang-jwt/jwt/v4"
 )
 
-type AccessToken jwt.StandardClaims
+type AccessToken jwt.RegisteredClaims
 
 func (c *AccessToken) Valid() error {
-	if time.Now().Unix() > c.ExpiresAt {
+	if time.Now().Unix() > c.ExpiresAt.Unix() {
 		return errors.New("jwt token is expired")
 	}
 
