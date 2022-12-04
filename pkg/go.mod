@@ -27,5 +27,3 @@ require (
 	golang.org/x/sys v0.0.0-20210502180810-71e4cd670f79 // indirect
 	golang.org/x/text v0.3.6 // indirect
 )
-
-replace github.com/micro/go-micro v1.18.0 => go-micro.dev/v4 v4.9.0
