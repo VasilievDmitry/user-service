@@ -4,11 +4,13 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+
 	"github.com/jmoiron/sqlx"
 	dbHelper "github.com/lotproject/go-helpers/db"
-	"github.com/lotproject/user-service/internal/repository/models"
-	"github.com/lotproject/user-service/pkg"
 	"go.uber.org/zap"
+
+	"github.com/lotproject/user-service/internal/repository/models"
+	userService "github.com/lotproject/user-service/proto/v1"
 )
 
 type authProviderRepository dbRepository
@@ -16,16 +18,16 @@ type authProviderRepository dbRepository
 // AuthProviderRepositoryInterface is abstraction layer for working with providers of users and its representation in database.
 type AuthProviderRepositoryInterface interface {
 	// Insert adds the user provider to the collection.
-	Insert(ctx context.Context, provider *pkg.AuthProvider) error
+	Insert(ctx context.Context, provider *userService.AuthProvider) error
 
 	// Update updates the user provider to the collection.
-	Update(ctx context.Context, provider *pkg.AuthProvider) error
+	Update(ctx context.Context, provider *userService.AuthProvider) error
 
 	// GetByToken returns the user provider by token.
-	GetByToken(ctx context.Context, provider, token string) (*pkg.AuthProvider, error)
+	GetByToken(ctx context.Context, provider, token string) (*userService.AuthProvider, error)
 
 	// GetByUserId returns the user provider by user identifier.
-	GetByUserId(ctx context.Context, provider string) ([]*pkg.AuthProvider, error)
+	GetByUserId(ctx context.Context, provider string) ([]*userService.AuthProvider, error)
 }
 
 // NewAuthProviderRepository create and return an object for working with the providers of user repository.
@@ -39,7 +41,7 @@ func NewAuthProviderRepository(db *sqlx.DB, logger *zap.Logger) AuthProviderRepo
 	return s
 }
 
-func (r *authProviderRepository) Insert(ctx context.Context, provider *pkg.AuthProvider) error {
+func (r *authProviderRepository) Insert(ctx context.Context, provider *userService.AuthProvider) error {
 	model, err := r.mapper.MapProtoToModel(provider)
 
 	if err != nil {
@@ -95,7 +97,7 @@ func (r *authProviderRepository) Insert(ctx context.Context, provider *pkg.AuthP
 	return nil
 }
 
-func (r *authProviderRepository) Update(ctx context.Context, provider *pkg.AuthProvider) error {
+func (r *authProviderRepository) Update(ctx context.Context, provider *userService.AuthProvider) error {
 	model, err := r.mapper.MapProtoToModel(provider)
 
 	if err != nil {
@@ -133,7 +135,7 @@ func (r *authProviderRepository) Update(ctx context.Context, provider *pkg.AuthP
 	return nil
 }
 
-func (r *authProviderRepository) GetByToken(ctx context.Context, provider, token string) (*pkg.AuthProvider, error) {
+func (r *authProviderRepository) GetByToken(ctx context.Context, provider, token string) (*userService.AuthProvider, error) {
 	var (
 		model = models.AuthProvider{}
 		query = fmt.Sprintf(r.getMainSelectQuery(), "WHERE provider=? AND token=?")
@@ -163,10 +165,10 @@ func (r *authProviderRepository) GetByToken(ctx context.Context, provider, token
 		return nil, err
 	}
 
-	return obj.(*pkg.AuthProvider), nil
+	return obj.(*userService.AuthProvider), nil
 }
 
-func (r *authProviderRepository) GetByUserId(ctx context.Context, userId string) ([]*pkg.AuthProvider, error) {
+func (r *authProviderRepository) GetByUserId(ctx context.Context, userId string) ([]*userService.AuthProvider, error) {
 	var (
 		list  []*models.AuthProvider
 		query = fmt.Sprintf(r.getMainSelectQuery(), "WHERE user_id=?")
@@ -185,7 +187,7 @@ func (r *authProviderRepository) GetByUserId(ctx context.Context, userId string)
 		return nil, err
 	}
 
-	objs := make([]*pkg.AuthProvider, len(list))
+	objs := make([]*userService.AuthProvider, len(list))
 
 	for i, obj := range list {
 		v, err := r.mapper.MapModelToProto(obj)
@@ -197,7 +199,7 @@ func (r *authProviderRepository) GetByUserId(ctx context.Context, userId string)
 			)
 			return nil, err
 		}
-		objs[i] = v.(*pkg.AuthProvider)
+		objs[i] = v.(*userService.AuthProvider)
 	}
 
 	return objs, nil

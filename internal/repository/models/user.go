@@ -2,9 +2,11 @@ package models
 
 import (
 	"database/sql"
-	"github.com/golang/protobuf/ptypes"
-	"github.com/lotproject/user-service/pkg"
 	"time"
+
+	"github.com/golang/protobuf/ptypes"
+
+	userService "github.com/lotproject/user-service/proto/v1"
 )
 
 type userMapper struct{}
@@ -27,7 +29,7 @@ type User struct {
 }
 
 func (m *userMapper) MapProtoToModel(obj interface{}) (interface{}, error) {
-	in := obj.(*pkg.User)
+	in := obj.(*userService.User)
 	out := &User{
 		EmailConfirmed: sql.NullBool{Bool: in.EmailConfirmed, Valid: true},
 		IsActive:       sql.NullBool{Bool: in.IsActive, Valid: true},
@@ -77,7 +79,7 @@ func (m *userMapper) MapModelToProto(obj interface{}) (interface{}, error) {
 	var err error
 
 	in := obj.(*User)
-	out := &pkg.User{}
+	out := &userService.User{}
 
 	if in.Id.Valid {
 		out.Id = in.Id.String

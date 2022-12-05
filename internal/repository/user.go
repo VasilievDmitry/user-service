@@ -4,12 +4,14 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	dbHelper "github.com/lotproject/go-helpers/db"
-	"github.com/lotproject/user-service/internal/repository/models"
-	"github.com/lotproject/user-service/pkg"
 	"go.uber.org/zap"
+
+	"github.com/lotproject/user-service/internal/repository/models"
+	userService "github.com/lotproject/user-service/proto/v1"
 )
 
 type userRepository dbRepository
@@ -17,16 +19,16 @@ type userRepository dbRepository
 // UserRepositoryInterface is abstraction layer for working with users and its representation in database.
 type UserRepositoryInterface interface {
 	// Insert adds the user to the collection.
-	Insert(ctx context.Context, user *pkg.User) error
+	Insert(ctx context.Context, user *userService.User) error
 
 	// Update updates the user in the collection.
-	Update(context.Context, *pkg.User) error
+	Update(context.Context, *userService.User) error
 
 	// GetById returns the user by identity.
-	GetById(ctx context.Context, id string) (*pkg.User, error)
+	GetById(ctx context.Context, id string) (*userService.User, error)
 
 	// GetByLogin returns the active user by login.
-	GetByLogin(ctx context.Context, login string) (*pkg.User, error)
+	GetByLogin(ctx context.Context, login string) (*userService.User, error)
 }
 
 // NewUserRepository create and return an object for working with the user repository.
@@ -40,7 +42,7 @@ func NewUserRepository(db *sqlx.DB, logger *zap.Logger) UserRepositoryInterface 
 	return s
 }
 
-func (r *userRepository) Insert(ctx context.Context, user *pkg.User) error {
+func (r *userRepository) Insert(ctx context.Context, user *userService.User) error {
 	if user.Id == "" {
 		user.Id = uuid.NewString()
 	}
@@ -74,7 +76,7 @@ func (r *userRepository) Insert(ctx context.Context, user *pkg.User) error {
 	return nil
 }
 
-func (r *userRepository) Update(ctx context.Context, user *pkg.User) error {
+func (r *userRepository) Update(ctx context.Context, user *userService.User) error {
 	model, err := r.mapper.MapProtoToModel(user)
 
 	if err != nil {
@@ -112,7 +114,7 @@ func (r *userRepository) Update(ctx context.Context, user *pkg.User) error {
 	return nil
 }
 
-func (r *userRepository) GetById(ctx context.Context, id string) (*pkg.User, error) {
+func (r *userRepository) GetById(ctx context.Context, id string) (*userService.User, error) {
 	var model = models.User{}
 
 	query := r.getMainSelectQuery()
@@ -143,10 +145,10 @@ func (r *userRepository) GetById(ctx context.Context, id string) (*pkg.User, err
 		return nil, err
 	}
 
-	return obj.(*pkg.User), nil
+	return obj.(*userService.User), nil
 }
 
-func (r *userRepository) GetByLogin(ctx context.Context, _login string) (*pkg.User, error) {
+func (r *userRepository) GetByLogin(ctx context.Context, _login string) (*userService.User, error) {
 	var model = models.User{}
 
 	query := r.getMainSelectQuery()
@@ -177,7 +179,7 @@ func (r *userRepository) GetByLogin(ctx context.Context, _login string) (*pkg.Us
 		return nil, err
 	}
 
-	return obj.(*pkg.User), nil
+	return obj.(*userService.User), nil
 }
 
 func (r *userRepository) getMainSelectQuery() string {

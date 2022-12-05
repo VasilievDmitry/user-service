@@ -3,21 +3,24 @@ package service
 import (
 	"context"
 	"fmt"
-	"github.com/dgrijalva/jwt-go"
+	"time"
+
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/lotproject/go-helpers/hash"
 	"github.com/lotproject/go-helpers/random"
-	"github.com/lotproject/user-service/pkg"
-	"github.com/micro/go-micro/errors"
+	"go-micro.dev/v4/errors"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"time"
+
+	"github.com/lotproject/user-service/pkg"
+	userService "github.com/lotproject/user-service/proto/v1"
 )
 
 func (s *Service) CreateAuthToken(
 	ctx context.Context,
-	req *pkg.CreateAuthTokenRequest,
-	res *pkg.ResponseWithAuthToken,
+	req *userService.CreateAuthTokenRequest,
+	res *userService.ResponseWithAuthToken,
 ) error {
 	user, err := s.repositories.User.GetById(ctx, req.UserId)
 
@@ -48,7 +51,7 @@ func (s *Service) CreateAuthToken(
 
 	refreshExp := time.Now().Add(time.Hour * 24 * time.Duration(s.cfg.RefreshTokenLifetime))
 
-	authLog := &pkg.AuthLog{
+	authLog := &userService.AuthLog{
 		User:         user,
 		IsActive:     true,
 		AccessToken:  accessToken,
@@ -62,7 +65,7 @@ func (s *Service) CreateAuthToken(
 		return errors.InternalServerError(pkg.ServiceName, pkg.ErrorInternalError)
 	}
 
-	res.AuthToken = &pkg.AuthToken{
+	res.AuthToken = &userService.AuthToken{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}
@@ -72,8 +75,8 @@ func (s *Service) CreateAuthToken(
 
 func (s *Service) RefreshAccessToken(
 	ctx context.Context,
-	req *pkg.RefreshAccessTokenRequest,
-	res *pkg.ResponseWithAuthToken,
+	req *userService.RefreshAccessTokenRequest,
+	res *userService.ResponseWithAuthToken,
 ) error {
 	authLog, err := s.repositories.AuthLog.GetByRefreshToken(ctx, req.RefreshToken)
 
@@ -99,7 +102,7 @@ func (s *Service) RefreshAccessToken(
 		return errors.InternalServerError(pkg.ServiceName, pkg.ErrorInternalError)
 	}
 
-	res.AuthToken = &pkg.AuthToken{
+	res.AuthToken = &userService.AuthToken{
 		AccessToken:  accessToken,
 		RefreshToken: authLog.RefreshToken,
 	}
@@ -109,7 +112,7 @@ func (s *Service) RefreshAccessToken(
 
 func (s *Service) DeactivateAuthToken(
 	ctx context.Context,
-	req *pkg.DeactivateAuthTokenRequest,
+	req *userService.DeactivateAuthTokenRequest,
 	_ *empty.Empty,
 ) error {
 	authLog, err := s.repositories.AuthLog.GetByAccessToken(ctx, req.AccessToken)

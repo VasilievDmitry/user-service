@@ -1,29 +1,34 @@
 package internal
 
 import (
-	"context"
 	"errors"
 	"fmt"
-	"github.com/InVisionApp/go-health/v2"
-	"github.com/InVisionApp/go-health/v2/handlers"
+	"io"
+	"os"
+
+	clientGrpc "github.com/go-micro/plugins/v4/client/grpc"
+	"github.com/go-micro/plugins/v4/registry/etcd"
+	serverGrpc "github.com/go-micro/plugins/v4/server/grpc"
+	transportGrpc "github.com/go-micro/plugins/v4/transport/grpc"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
-	gameService "github.com/lotproject/game-service/pkg"
 	"github.com/lotproject/go-helpers/db"
 	"github.com/lotproject/go-helpers/log"
+	"github.com/natefinch/lumberjack"
+	"go-micro.dev/v4"
+	"go-micro.dev/v4/registry"
+	"go-micro.dev/v4/server"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+
+	gameService "github.com/lotproject/user-service/proto/game-service"
+
+	"github.com/lotproject/user-service/pkg"
+	userService "github.com/lotproject/user-service/proto/v1"
+
 	"github.com/lotproject/user-service/config"
 	"github.com/lotproject/user-service/internal/repository"
 	"github.com/lotproject/user-service/internal/service"
-	"github.com/lotproject/user-service/pkg"
-	"github.com/micro/go-micro"
-	"github.com/natefinch/lumberjack"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
-	"io"
-	"net/http"
-	"os"
-	"time"
 )
 
 // Application is application entry point.
@@ -34,22 +39,16 @@ type Application struct {
 	service           *service.Service
 	micro             micro.Service
 	gameServiceClient gameService.GameService
-	healthServer      *http.Server
-	healthRouter      *http.ServeMux
 }
 
 // NewApplication create new Application.
 func NewApplication() (app *Application) {
-	app = &Application{
-		healthRouter: http.NewServeMux(),
-	}
+	app = &Application{}
 
 	app.initConfig()
 	app.initLogger()
 	app.initDatabase()
 	app.initMicroServices()
-	app.initHealth()
-	app.initMetrics()
 
 	app.service = service.NewService(
 		repository.InitRepositories(app.database, app.log),
@@ -59,34 +58,6 @@ func NewApplication() (app *Application) {
 	)
 
 	return
-}
-
-func (app *Application) initHealth() {
-	h := health.New()
-	err := h.AddChecks([]*health.Config{
-		{
-			Name:     "health-check",
-			Checker:  app,
-			Interval: time.Duration(1) * time.Second,
-			Fatal:    true,
-		},
-	})
-
-	if err != nil {
-		app.log.Fatal("Health check register failed", zap.Error(err))
-	}
-
-	if err = h.Start(); err != nil {
-		app.log.Fatal("Health check start failed", zap.Error(err))
-	}
-
-	app.log.Info("Health check listener started", zap.Int("port", app.cfg.MetricsPort))
-
-	app.healthRouter.HandleFunc("/health", handlers.NewJSONHandlerFunc(h, nil))
-}
-
-func (app *Application) initMetrics() {
-	app.healthRouter.Handle("/metrics", promhttp.Handler())
 }
 
 func (app *Application) Status() (interface{}, error) {
@@ -161,8 +132,20 @@ func (app *Application) initDatabase() {
 }
 
 func (app *Application) initMicroServices() {
+	r := etcd.NewRegistry(registry.Addrs(app.cfg.MicroRegistryAddress))
+	t := transportGrpc.NewTransport()
+	c := clientGrpc.NewClient()
+	s := serverGrpc.NewServer(
+		server.Name(pkg.ServiceName),
+		server.Registry(r),
+		server.Transport(t),
+	)
+
 	options := []micro.Option{
-		micro.Name(pkg.ServiceName),
+		micro.Registry(r),
+		micro.Transport(t),
+		micro.Server(s),
+		micro.Client(c),
 		micro.AfterStop(func() error {
 			app.log.Info("Micro service stopped")
 			app.Stop()
@@ -170,14 +153,10 @@ func (app *Application) initMicroServices() {
 		}),
 	}
 
-	if os.Getenv("MICRO_SERVER_NAME") == "" {
-		os.Setenv("MICRO_SERVER_NAME", pkg.ServiceName)
-	}
-
 	app.micro = micro.NewService(options...)
 	app.micro.Init()
 
-	app.gameServiceClient = gameService.NewGameService(gameService.ServiceName, app.micro.Client())
+	app.gameServiceClient = gameService.NewGameService("lot.game.v1", app.micro.Client())
 
 	app.log.Info("Micro service initialization successfully...")
 }
@@ -192,15 +171,7 @@ func (app *Application) Run() {
 	if err != nil {
 		app.log.Fatal("DB migrations failed", zap.Error(err))
 	}
-
-	app.healthServer = &http.Server{
-		Addr:              fmt.Sprintf(":%d", app.cfg.MetricsPort),
-		Handler:           app.healthRouter,
-		ReadTimeout:       time.Duration(app.cfg.MetricsReadTimeout) * time.Second,
-		ReadHeaderTimeout: time.Duration(app.cfg.MetricsReadHeaderTimeout) * time.Second,
-	}
-
-	if err := pkg.RegisterUserServiceHandler(app.micro.Server(), app.service); err != nil {
+	if err := userService.RegisterUserServiceHandler(app.micro.Server(), app.service); err != nil {
 		app.log.Fatal("Micro service starting failed", zap.Error(err))
 	}
 
@@ -210,9 +181,6 @@ func (app *Application) Run() {
 }
 
 func (app *Application) Stop() {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
 	app.log.Info("Shutdown the game service application")
 
 	err := app.database.Close()
@@ -220,13 +188,6 @@ func (app *Application) Stop() {
 		app.log.Error("DB connection close failed", zap.Error(err))
 	} else {
 		app.log.Info("DB connection close success")
-	}
-
-	if app.healthServer != nil {
-		if err := app.healthServer.Shutdown(ctx); err != nil {
-			app.log.Error("Health server shutdown failed", zap.Error(err))
-		}
-		app.log.Info("Health server stopped")
 	}
 
 	if err := app.log.Sync(); err != nil {

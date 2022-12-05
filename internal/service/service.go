@@ -3,16 +3,20 @@ package service
 import (
 	"context"
 	"fmt"
-	"github.com/dgrijalva/jwt-go"
+	"time"
+
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/golang/protobuf/ptypes/empty"
-	gameService "github.com/lotproject/game-service/pkg"
 	dbHelper "github.com/lotproject/go-helpers/db"
+	"go-micro.dev/v4/errors"
+	"go.uber.org/zap"
+
+	gameService "github.com/lotproject/user-service/proto/game-service"
+
 	"github.com/lotproject/user-service/config"
 	"github.com/lotproject/user-service/internal/repository"
 	"github.com/lotproject/user-service/pkg"
-	"github.com/micro/go-micro/errors"
-	"go.uber.org/zap"
-	"time"
+	userService "github.com/lotproject/user-service/proto/v1"
 )
 
 type Service struct {
@@ -45,7 +49,7 @@ func (s *Service) Ping(
 	return nil
 }
 
-func (s *Service) convertUserToProfile(user *pkg.User) *pkg.UserProfile {
+func (s *Service) convertUserToProfile(user *userService.User) *userService.UserProfile {
 	centrifugoToken, _ := createJwtToken(user.Id, s.cfg.RefreshTokenLifetime, jwt.SigningMethodHS256, s.cfg.CentrifugoSecret)
 
 	servers, err := s.gameService.GetUserServers(context.TODO(), &gameService.GetUserServersRequest{UserId: user.Id})
@@ -56,28 +60,28 @@ func (s *Service) convertUserToProfile(user *pkg.User) *pkg.UserProfile {
 		)
 	}
 
-	var serverList []*pkg.GameServer
+	var serverList []*userService.GameServer
 
 	if servers != nil && len(servers.List) > 0 {
 		for _, server := range servers.List {
-			serverList = append(serverList, &pkg.GameServer{
+			serverList = append(serverList, &userService.GameServer{
 				Id:   server.Id,
 				Name: server.Name,
 			})
 		}
 	}
 
-	var walletList []*pkg.AuthProvider
+	var walletList []*userService.AuthProvider
 
 	wallets, _ := s.repositories.AuthProvider.GetByUserId(context.TODO(), user.Id)
 	for _, wallet := range wallets {
-		walletList = append(walletList, &pkg.AuthProvider{
+		walletList = append(walletList, &userService.AuthProvider{
 			Provider: wallet.Provider,
 			Token:    wallet.Token,
 		})
 	}
 
-	profile := &pkg.UserProfile{
+	profile := &userService.UserProfile{
 		Id:                user.Id,
 		Login:             user.Login,
 		Username:          user.Username,

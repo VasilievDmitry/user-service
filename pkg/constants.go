@@ -1,7 +1,7 @@
 package pkg
 
 const (
-	ServiceName = "LOT_USER_SERVICE"
+	ServiceName = "lot.user.v1"
 
 	ErrorInternalError           = "internal_server_error"
 	ErrorUserNotFound            = "user_not_found"

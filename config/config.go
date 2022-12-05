@@ -8,6 +8,8 @@ import (
 type Config struct {
 	DevelopMode bool `envconfig:"DEVELOP_MODE" required:"false" default:"false"`
 
+	MicroRegistryAddress string `envconfig:"MICRO_REGISTRY_ADDRESS" required:"false" default:"127.0.0.1:2379"`
+
 	MetricsPort              int `envconfig:"METRICS_PORT" required:"false" default:"8086"`
 	MetricsReadTimeout       int `envconfig:"METRICS_READ_TIMEOUT" default:"60"`
 	MetricsReadHeaderTimeout int `envconfig:"METRICS_READ_HEADER_TIMEOUT" default:"60"`

@@ -2,18 +2,21 @@ package service
 
 import (
 	"context"
+
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/lotproject/go-helpers/hash"
 	"github.com/lotproject/go-helpers/random"
-	"github.com/lotproject/user-service/pkg"
-	"github.com/micro/go-micro/errors"
+	"go-micro.dev/v4/errors"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
+
+	"github.com/lotproject/user-service/pkg"
+	userService "github.com/lotproject/user-service/proto/v1"
 )
 
 func (s *Service) VerifyPassword(
 	ctx context.Context,
-	req *pkg.VerifyPasswordRequest,
+	req *userService.VerifyPasswordRequest,
 	_ *empty.Empty,
 ) error {
 	user, err := s.repositories.User.GetById(ctx, req.UserId)
@@ -33,7 +36,7 @@ func (s *Service) VerifyPassword(
 
 func (s *Service) SetPassword(
 	ctx context.Context,
-	req *pkg.SetPasswordRequest,
+	req *userService.SetPasswordRequest,
 	_ *empty.Empty,
 ) error {
 	user, err := s.repositories.User.GetById(ctx, req.UserId)
@@ -60,8 +63,8 @@ func (s *Service) SetPassword(
 
 func (s *Service) CreatePasswordRecoveryCode(
 	ctx context.Context,
-	req *pkg.CreatePasswordRecoveryCodeRequest,
-	res *pkg.CreatePasswordRecoveryCodeResponse,
+	req *userService.CreatePasswordRecoveryCodeRequest,
+	res *userService.CreatePasswordRecoveryCodeResponse,
 ) error {
 	user, err := s.repositories.User.GetById(ctx, req.UserId)
 
@@ -87,7 +90,7 @@ func (s *Service) CreatePasswordRecoveryCode(
 
 func (s *Service) UsePasswordRecoveryCode(
 	ctx context.Context,
-	req *pkg.UsePasswordRecoveryCodeRequest,
+	req *userService.UsePasswordRecoveryCodeRequest,
 	_ *empty.Empty,
 ) error {
 	user, err := s.repositories.User.GetById(ctx, req.UserId)

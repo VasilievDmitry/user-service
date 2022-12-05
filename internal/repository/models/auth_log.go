@@ -3,9 +3,11 @@ package models
 import (
 	"database/sql"
 	"errors"
-	"github.com/lotproject/user-service/pkg"
-	"google.golang.org/protobuf/types/known/timestamppb"
 	"time"
+
+	"google.golang.org/protobuf/types/known/timestamppb"
+
+	userService "github.com/lotproject/user-service/proto/v1"
 )
 
 type authLogMapper struct{}
@@ -29,7 +31,7 @@ type AuthLog struct {
 }
 
 func (m *authLogMapper) MapProtoToModel(obj interface{}) (interface{}, error) {
-	in := obj.(*pkg.AuthLog)
+	in := obj.(*userService.AuthLog)
 	out := &AuthLog{
 		UserId:       in.User.Id,
 		Ip:           in.Ip,
@@ -63,7 +65,7 @@ func (m *authLogMapper) MapModelToProto(obj interface{}) (interface{}, error) {
 	var err error
 
 	in := obj.(*AuthLog)
-	out := &pkg.AuthLog{
+	out := &userService.AuthLog{
 		Id:           in.Id,
 		Ip:           in.Ip,
 		UserAgent:    in.UserAgent,
@@ -84,7 +86,7 @@ func (m *authLogMapper) MapModelToProto(obj interface{}) (interface{}, error) {
 		return nil, err
 	}
 
-	out.User = user.(*pkg.User)
+	out.User = user.(*userService.User)
 
 	if in.ExpireAt.IsZero() {
 		return nil, errors.New("expire time cannot be empty")

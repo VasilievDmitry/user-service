@@ -1,0 +1,253 @@
+syntax = "proto3";
+
+package lot.game.v1;
+option go_package = "github.com/lotproject/game-service/proto/v1";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+service GameService {
+  rpc Ping (google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc CreateAuthToken (CreateAuthTokenRequest) returns (CreateAuthTokenResponse) {}
+  rpc ValidateAuthToken (ValidateAuthTokenRequest) returns (ValidateAuthTokenResponse) {}
+  rpc RequestGameBalance (RequestGameBalanceRequest) returns (google.protobuf.Empty) {}
+  rpc GetServerList (google.protobuf.Empty) returns (ServerListResponse) {}
+  rpc GetUserServers (GetUserServersRequest) returns (ServerListResponse) {}
+  rpc TransferTokenFromGame (TransferTokenFromGameRequest) returns (google.protobuf.Empty) {}
+
+  // ChangeCraftLicense is test method, don't use them in api
+  rpc ChangeCraftLicense (ChangeCraftLicenseRequest) returns (google.protobuf.Empty) {}
+  rpc GetCraftLicense (GetCraftLicenseRequest) returns (CraftLicenseProfile) {}
+  rpc GetUserCraftList (GetUserCraftListRequest) returns (CraftListResponse) {}
+  rpc AddCraftService (AddCraftServiceRequest) returns (AddCraftServiceResponse) {}
+  rpc GetUserCraftService (GetUserCraftServiceRequest) returns (CraftListResponse) {}
+  rpc RevokeUserCraftService (RevokeUserCraftServiceRequest) returns (google.protobuf.Empty) {}
+  rpc GetBestPrices (GetBestPricesRequest) returns (GetBestPricesResponse) {}
+}
+
+message GameServer {
+  // @inject_tag: json:"id"
+  string id = 1;
+  // @inject_tag: json:"name"
+  string name = 2;
+  // @inject_tag: json:"is_active"
+  bool is_active = 3;
+  // @inject_tag: json:"created_at"
+  google.protobuf.Timestamp created_at = 4;
+  // @inject_tag: json:"updated_at"
+  google.protobuf.Timestamp updated_at = 5;
+}
+
+message GameChar {
+  // @inject_tag: json:"id"
+  string id = 1;
+  // @inject_tag: json:"user_id"
+  string user_id = 2;
+  // @inject_tag: json:"server"
+  GameServer server = 3;
+  // @inject_tag: json:"char_id"
+  string char_id = 4;
+  // @inject_tag: json:"char_name"
+  string char_name = 5;
+  // @inject_tag: json:"created_at"
+  google.protobuf.Timestamp created_at = 6;
+  // @inject_tag: json:"-"
+  bool is_active = 7;
+}
+
+message GameToken {
+  // @inject_tag: json:"id"
+  string id = 1;
+  // @inject_tag: json:"amount"
+  double amount = 2;
+}
+
+message CraftLicense {
+  // @inject_tag: json:"id"
+  string id = 1;
+  // @inject_tag: json:"user_id"
+  string user_id = 2;
+  // @inject_tag: json:"experience"
+  int32 experience = 3;
+  // @inject_tag: json:"is_active"
+  bool is_active = 4;
+  // @inject_tag: json:"created_at"
+  google.protobuf.Timestamp created_at = 5;
+  // @inject_tag: json:"updated_at"
+  google.protobuf.Timestamp updated_at = 6;
+}
+
+message CraftMarket {
+  // @inject_tag: json:"id"
+  string id = 1;
+  // @inject_tag: json:"-"
+  string user_id = 2;
+  // @inject_tag: json:"operation"
+  string operation = 3;
+  // @inject_tag: json:"status"
+  string status = 4;
+  // @inject_tag: json:"item1,omitempty"
+  string item1 = 5;
+  // @inject_tag: json:"item2,omitempty"
+  string item2 = 6;
+  // @inject_tag: json:"price"
+  float price = 7;
+  // @inject_tag: json:"level"
+  int32 level = 8;
+  // @inject_tag: json:"-"
+  string trade_pair_id = 9;
+  // @inject_tag: json:"created_at"
+  google.protobuf.Timestamp created_at = 10;
+  // @inject_tag: json:"-"
+  google.protobuf.Timestamp updated_at = 11;
+  // @inject_tag: json:"started_at,omitempty"
+  google.protobuf.Timestamp started_at = 12;
+  // @inject_tag: json:"completed_at,omitempty"
+  google.protobuf.Timestamp completed_at = 13;
+}
+
+message CraftLicenseProfile {
+  // @inject_tag: json:"is_license_active"
+  bool is_license_active = 1;
+  // @inject_tag: json:"craft_level"
+  int32 craft_level = 2;
+  // @inject_tag: json:"craft_experience"
+  int32 craft_experience = 3;
+  // @inject_tag: json:"craft_count_remain"
+  int32 craft_count_remain = 4;
+}
+
+message CreateAuthTokenRequest {
+  string user_id = 1;
+  string server = 2;
+}
+
+message CreateAuthTokenResponse {
+  string token = 1;
+}
+
+message ValidateAuthTokenRequest {
+  string token = 1;
+}
+
+message ValidateAuthTokenResponse {
+  string user_id = 1;
+}
+
+message GetTransferLockRequest {
+  string user_id = 1;
+}
+
+message GetTransferLockResponse {
+  int64 expire = 1;
+}
+
+message RequestGameBalanceRequest {
+  string user_id = 1;
+  string server_id = 2;
+}
+
+message GetUserServersRequest {
+  string user_id = 1;
+}
+
+message ServerListResponse {
+  message ServerItem {
+    // @inject_tag: json:"id"
+    string id = 1;
+    // @inject_tag: json:"name"
+    string name = 2;
+  }
+
+  // @inject_tag: json:"list"
+  repeated ServerItem list = 1;
+}
+
+message TransferTokenFromGameRequest {
+  // @inject_tag: jwt:"user_id"
+  string user_id = 1;
+  // @inject_tag: validate:"required"
+  string signature = 2;
+}
+
+message ChangeCraftLicenseRequest {
+  string wallet = 1;
+  string wallet_provider = 2;
+  bool is_active = 3;
+}
+
+message UseCraftLicenseRequest {
+  string wallet = 1;
+  string wallet_provider = 2;
+  int32 craft_level = 3;
+  string item1 = 4;
+  string item2 = 5;
+}
+
+message GetCraftLicenseRequest {
+  // @inject_tag: jwt:"user_id"
+  string user_id = 1;
+}
+
+message GetUserCraftListRequest {
+  // @inject_tag: jwt:"user_id"
+  string user_id = 1;
+}
+
+message CraftListResponse {
+  // @inject_tag: json:"list"
+  repeated CraftMarket list = 1;
+}
+
+message GetUserCraftServiceRequest {
+  // @inject_tag: jwt:"user_id"
+  string user_id = 1;
+}
+
+message RevokeUserCraftServiceRequest {
+  // @inject_tag: jwt:"user_id"
+  string user_id = 1;
+  string trade_id = 2;
+}
+
+message AddCraftServiceRequest {
+  // @inject_tag: jwt:"user_id"
+  string user_id = 1;
+  // @inject_tag: json:"craft_level"
+  int32 craft_level = 2;
+  // @inject_tag: json:"price"
+  float price = 3;
+}
+
+message AddCraftServiceResponse {
+  // @inject_tag: json:"item"
+  CraftMarket item = 1;
+}
+
+message CraftCompletedRequest {
+  string trade_id = 1;
+  bool result = 2;
+}
+
+message GetBestPricesRequest {
+  // @inject_tag: query:"level"
+  int32 level = 1;
+  // @inject_tag: query:"limit"
+  int64 limit = 2;
+}
+
+message GetBestPricesResponse {
+  // @inject_tag: json:"list"
+  repeated BestPrice list = 1;
+}
+
+message BestPrice {
+  // @inject_tag: json:"level"
+  int32 level = 1;
+  // @inject_tag: json:"price"
+  float price = 2;
+  // @inject_tag: json:"count"
+  int32 count = 3;
+  // @inject_tag: json:"operation"
+  string operation = 4;
+}

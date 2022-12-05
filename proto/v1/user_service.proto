@@ -1,13 +1,14 @@
 syntax = "proto3";
 
-package user_service;
-option go_package = "github.com/lotproject/user-service/pkg";
+package lot.user.v1;
+option go_package = "github.com/lotproject/user-service/proto/v1";
 
 import "google/protobuf/empty.proto";
 import "user_service_entity.proto";
 
 service UserService {
   rpc Ping (google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc GetSupportedWallets (google.protobuf.Empty) returns (GetSupportedWalletsResponse) {}
   rpc CreateUserByWallet (CreateUserByWalletRequest) returns (ResponseWithUserProfile) {}
   rpc VerifyPassword (VerifyPasswordRequest) returns (google.protobuf.Empty) {}
   rpc SetUsername (SetUsernameRequest) returns (google.protobuf.Empty) {}
@@ -23,6 +24,10 @@ service UserService {
   rpc CreateAuthToken (CreateAuthTokenRequest) returns (ResponseWithAuthToken) {}
   rpc DeactivateAuthToken (DeactivateAuthTokenRequest) returns (google.protobuf.Empty) {}
   rpc RefreshAccessToken (RefreshAccessTokenRequest) returns (ResponseWithAuthToken) {}
+}
+
+message GetSupportedWalletsResponse {
+  repeated string wallets = 1;
 }
 
 message ResponseWithUserProfile {

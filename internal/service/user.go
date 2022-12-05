@@ -7,14 +7,16 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 	dbHelper "github.com/lotproject/go-helpers/db"
 	"github.com/lotproject/go-helpers/random"
+	"go-micro.dev/v4/errors"
+
 	"github.com/lotproject/user-service/pkg"
-	"github.com/micro/go-micro/errors"
+	userService "github.com/lotproject/user-service/proto/v1"
 )
 
 func (s *Service) GetUserById(
 	ctx context.Context,
-	req *pkg.GetUserByIdRequest,
-	res *pkg.ResponseWithUserProfile,
+	req *userService.GetUserByIdRequest,
+	res *userService.ResponseWithUserProfile,
 ) error {
 	user, err := s.repositories.User.GetById(ctx, req.UserId)
 
@@ -29,8 +31,8 @@ func (s *Service) GetUserById(
 
 func (s *Service) GetUserByLogin(
 	ctx context.Context,
-	req *pkg.GetUserByLoginRequest,
-	res *pkg.ResponseWithUserProfile,
+	req *userService.GetUserByLoginRequest,
+	res *userService.ResponseWithUserProfile,
 ) error {
 	user, err := s.repositories.User.GetByLogin(ctx, req.Login)
 
@@ -45,8 +47,8 @@ func (s *Service) GetUserByLogin(
 
 func (s *Service) GetUserByAccessToken(
 	ctx context.Context,
-	req *pkg.GetUserByAccessTokenRequest,
-	res *pkg.ResponseWithUserProfile,
+	req *userService.GetUserByAccessTokenRequest,
+	res *userService.ResponseWithUserProfile,
 ) error {
 	authLog, err := s.repositories.AuthLog.GetByAccessToken(ctx, req.AccessToken)
 
@@ -67,8 +69,8 @@ func (s *Service) GetUserByAccessToken(
 
 func (s *Service) GetUserByWallet(
 	ctx context.Context,
-	req *pkg.GetUserByWalletRequest,
-	res *pkg.ResponseWithUserProfile,
+	req *userService.GetUserByWalletRequest,
+	res *userService.ResponseWithUserProfile,
 ) error {
 	authProvider, err := s.repositories.AuthProvider.GetByToken(ctx, req.Provider, req.Token)
 
@@ -89,7 +91,7 @@ func (s *Service) GetUserByWallet(
 
 func (s *Service) SetUsername(
 	ctx context.Context,
-	req *pkg.SetUsernameRequest,
+	req *userService.SetUsernameRequest,
 	_ *empty.Empty,
 ) error {
 	user, err := s.repositories.User.GetById(ctx, req.UserId)
@@ -109,8 +111,8 @@ func (s *Service) SetUsername(
 
 func (s *Service) SetLogin(
 	ctx context.Context,
-	req *pkg.SetLoginRequest,
-	res *pkg.SetLoginResponse,
+	req *userService.SetLoginRequest,
+	res *userService.SetLoginResponse,
 ) error {
 	user, err := s.repositories.User.GetById(ctx, req.UserId)
 
@@ -140,7 +142,7 @@ func (s *Service) SetLogin(
 
 func (s *Service) ConfirmLogin(
 	ctx context.Context,
-	req *pkg.ConfirmLoginRequest,
+	req *userService.ConfirmLoginRequest,
 	_ *empty.Empty,
 ) error {
 	user, err := s.repositories.User.GetById(ctx, req.UserId)
