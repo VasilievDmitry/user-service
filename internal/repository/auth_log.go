@@ -219,6 +219,7 @@ func (r *authLogRepository) getMainSelectQuery() string {
 			u.id              AS 'user.id',
 			u.login           AS 'user.login',
 			u.username        AS 'user.username',
+			u.balance        AS 'user.balance',
 			u.email_confirmed AS 'user.email_confirmed',
 			u.is_active       AS 'user.is_active'
 		FROM auth_log AS al

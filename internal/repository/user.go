@@ -59,8 +59,8 @@ func (r *userRepository) Insert(ctx context.Context, user *userService.User) err
 	}
 
 	query := `
-		INSERT INTO user (id, login, password, username, email_code, email_confirmed, recovery_code, is_active, created_at, updated_at)
-		VALUES (:id, :login, :password, :username, :email_code, :email_confirmed, :recovery_code, :is_active, :created_at, :updated_at)`
+		INSERT INTO user (id, login, password, username, email_code, email_confirmed, balance, recovery_code, is_active, created_at, updated_at)
+		VALUES (:id, :login, :password, :username, :email_code, :email_confirmed, :balance, :recovery_code, :is_active, :created_at, :updated_at)`
 	_, err = r.db.NamedExecContext(ctx, query, model)
 
 	if err != nil {
@@ -93,6 +93,7 @@ func (r *userRepository) Update(ctx context.Context, user *userService.User) err
 		SET login=:login,
 			password=:password,
 			username=:username,
+			balance=:balance,
 			email_code=:email_code,
 			email_confirmed=:email_confirmed,
 			is_active=:is_active,
@@ -119,7 +120,7 @@ func (r *userRepository) GetById(ctx context.Context, id string) (*userService.U
 
 	query := r.getMainSelectQuery()
 	query = fmt.Sprintf(query, "WHERE u.id = ?")
-
+fmt.Println(query)
 	err := r.db.GetContext(ctx, &model, query, id)
 
 	if err != nil {

@@ -26,6 +26,8 @@ message User {
   google.protobuf.Timestamp created_at = 9;
   // @inject_tag: json:"-"
   google.protobuf.Timestamp updated_at = 10;
+  // @inject_tag: json:"balance"
+  double balance = 11;
 }
 
 message UserProfile {
@@ -45,6 +47,9 @@ message UserProfile {
   repeated GameServer game_servers = 7;
   // @inject_tag: json:"wallets"
   repeated AuthProvider wallets = 8;
+  // @inject_tag: json:"balance"
+  double balance = 9;
+  
 }
 
 message GameServer {

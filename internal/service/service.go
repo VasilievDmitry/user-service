@@ -90,6 +90,7 @@ func (s *Service) convertUserToProfile(user *userService.User) *userService.User
 		CentrifugoChannel: fmt.Sprintf(s.cfg.CentrifugoUserChannel, user.Id),
 		GameServers:       serverList,
 		Wallets:           walletList,
+		Balance: user.Balance,
 	}
 
 	return profile

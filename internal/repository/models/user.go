@@ -26,6 +26,7 @@ type User struct {
 	IsActive       sql.NullBool   `db:"is_active"`
 	CreatedAt      sql.NullTime   `db:"created_at"`
 	UpdatedAt      sql.NullTime   `db:"updated_at"`
+	Balance      	sql.NullFloat64   `db:"balance"`
 }
 
 func (m *userMapper) MapProtoToModel(obj interface{}) (interface{}, error) {
@@ -112,7 +113,9 @@ func (m *userMapper) MapModelToProto(obj interface{}) (interface{}, error) {
 	if in.IsActive.Valid {
 		out.IsActive = in.IsActive.Bool
 	}
-
+	if in.Balance.Valid {
+		out.Balance = in.Balance.Float64
+	}
 	if in.CreatedAt.Valid {
 		out.CreatedAt, err = ptypes.TimestampProto(in.CreatedAt.Time)
 		if err != nil {
